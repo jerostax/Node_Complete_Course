@@ -8,6 +8,6 @@ Dans ce dossier ce trouve de la doc écrite sur certains sujets
 
 Dans ce dossier, quelques rappels de JavaScript moderne que l'on va utiliser en codant avec Node
 
-### 3 - [Basics]
+### 3 - [Basics](https://github.com/jerostax/Node_Complete_Course/tree/master/basics)
 
 Dans ce dossier, les bases de la création d'un server NodeJs
