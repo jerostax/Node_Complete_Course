@@ -1,4 +1,3 @@
-const http = require("http");
 // On importe express et on le stock dans une variable
 const express = require("express");
 // On créé une nouvelle app express() stockée dans la variable app
