@@ -10,16 +10,15 @@ const app = express();
 // next est une function qui doit s'éxécuter pour autoriser une requête à aller au prochain middleware
 
 app.use((req, res, next) => {
-    console.log('In the middleware!')
-    next(); // autorise la requête à passer dans le prochain middleware
+  console.log("In the middleware!");
+  next(); // autorise la requête à passer dans le prochain middleware
 });
 app.use((req, res, next) => {
-    console.log('In another middleware!')
-    // send() nous autorise à renvoyer une réponse (avec un body de type any)
-    res.send('<h1>Hello from Express</h1>');
+  console.log("In another middleware!");
+  // send() nous autorise à renvoyer une réponse (avec un body de type any)
+  res.send("<h1>Hello from Express</h1>");
 });
 
-// On se sert de notre app express comme request handler valide qu'on passe à createServer
-const server = http.createServer(app);
-
-server.listen(3000);
+// app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
+// et également d'executer listen() sur le port souhaiter
+app.listen(3000);
