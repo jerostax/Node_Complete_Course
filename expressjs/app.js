@@ -1,5 +1,7 @@
 // On importe express et on le stock dans une variable
 const express = require("express");
+// On importe le body parser
+const bodyParser = require("body-parser");
 // On créé une nouvelle app express() stockée dans la variable app
 const app = express();
 
@@ -16,8 +18,20 @@ app.use((req, res, next) => {
 });
 
 */
-app.use("/users", (req, res, next) => {
-  res.send("<h1>User's page</h1>");
+
+// la fonction urlencoded va parse la réponse du body et passer à next()
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use("/add-product", (req, res, next) => {
+  res.send(
+    "<form action='/product' method='POST'><input type='text' name='title'><button type='submit'>Add Product </button></form>"
+  );
+});
+
+app.use("/product", (req, res, next) => {
+  console.log(req.body);
+  res.send(`<h1> La réponse => ${req.body.title}</h1>`);
+  //   res.redirect("/");
 });
 
 app.use("/", (req, res, next) => {
