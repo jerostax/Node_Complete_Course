@@ -4,6 +4,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 // On créé une nouvelle app express() stockée dans la variable app
 const app = express();
+// On importe l'objet Router du fichier admin.js qui contient nos routes "admin"
+const adminRoutes = require("./routes/admin");
+// On importe l'objet Router du fichier shop.js qui contient nos routes "shop"
+const shopRoutes = require("./routes/shop");
 
 // use() nous autorise à ajouter une nouvelle fx middleware
 // La fx qu'on passe a use() sera excecutée à chaque requête entrante
@@ -11,35 +15,18 @@ const app = express();
 // next est une function qui doit s'éxécuter pour autoriser une requête à aller au prochain middleware
 
 /*
-
 app.use((req, res, next) => {
   console.log("In the middleware!");
   next(); // autorise la requête à passer dans le prochain middleware
 });
-
 */
 
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
-
-app.use("/add-product", (req, res, next) => {
-  res.send(
-    "<form action='/product' method='POST'><input type='text' name='title'><button type='submit'>Add Product </button></form>"
-  );
-});
-// get() ne se déclenche que lorsqu'on reçoit des requêtes get contrairement à use() qui se déclenche à chaque fois
-// note: post() pour déclencher que les requêtes post
-app.post("/product", (req, res, next) => {
-  console.log(req.body);
-  res.send(`<h1> La réponse => ${req.body.title}</h1>`);
-  //   res.redirect("/");
-});
-
-app.use("/", (req, res, next) => {
-  console.log("In another middleware!");
-  // send() nous autorise à renvoyer une réponse (avec un body de type any)
-  res.send("<h1>Hello from Express</h1>");
-});
+// On use() adminRoutes
+app.use(adminRoutes);
+// Pareil avec nos routes "shop"
+app.use(shopRoutes);
 
 // app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
 // et également d'executer listen() sur le port souhaiter
