@@ -24,7 +24,8 @@ app.use((req, res, next) => {
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
 // On use() adminRoutes
-app.use(adminRoutes);
+// On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
+app.use('/admin', adminRoutes);
 // Pareil avec nos routes "shop"
 app.use(shopRoutes);
 
