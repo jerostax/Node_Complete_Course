@@ -27,8 +27,9 @@ app.use("/add-product", (req, res, next) => {
     "<form action='/product' method='POST'><input type='text' name='title'><button type='submit'>Add Product </button></form>"
   );
 });
-
-app.use("/product", (req, res, next) => {
+// get() ne se déclenche que lorsqu'on reçoit des requêtes get contrairement à use() qui se déclenche à chaque fois
+// note: post() pour déclencher que les requêtes post
+app.post("/product", (req, res, next) => {
   console.log(req.body);
   res.send(`<h1> La réponse => ${req.body.title}</h1>`);
   //   res.redirect("/");
