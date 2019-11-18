@@ -1,13 +1,13 @@
 // On importe express et on le stock dans une variable
-const express = require("express");
+const express = require('express');
 // On importe le body parser
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 // On créé une nouvelle app express() stockée dans la variable app
 const app = express();
 // On importe l'objet Router du fichier admin.js qui contient nos routes "admin"
-const adminRoutes = require("./routes/admin");
+const adminRoutes = require('./routes/admin');
 // On importe l'objet Router du fichier shop.js qui contient nos routes "shop"
-const shopRoutes = require("./routes/shop");
+const shopRoutes = require('./routes/shop');
 
 // use() nous autorise à ajouter une nouvelle fx middleware
 // La fx qu'on passe a use() sera excecutée à chaque requête entrante
@@ -27,6 +27,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(adminRoutes);
 // Pareil avec nos routes "shop"
 app.use(shopRoutes);
+
+// Ce dernier middleware va déclanger une erreur 404 car il sera executé uniquement si on a pas trouvé les routes des middlewares précedents
+app.use((req, res, next) => {
+  res.status(404).send('<h1>Page not found :-(</h1>');
+});
 
 // app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
 // et également d'executer listen() sur le port souhaiter
