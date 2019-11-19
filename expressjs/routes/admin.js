@@ -1,12 +1,12 @@
+const path = require('path');
+
 const express = require('express');
 // On utilise le Router d'express
 const router = express.Router();
 
 // /admon/add-product => GET
 router.get('/add-product', (req, res, next) => {
-  res.send(
-    "<form action='/admin/add-product' method='POST'><input type='text' name='title'><button type='submit'>Add Product </button></form>"
-  );
+  res.sendFile(path.join(__dirname, '../', 'views', 'add-product.html'));
 });
 // get() ne se déclenche que lorsqu'on reçoit des requêtes get contrairement à use() qui se déclenche à chaque fois
 // note: post() pour déclencher que les requêtes post
