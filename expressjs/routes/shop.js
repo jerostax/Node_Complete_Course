@@ -1,6 +1,8 @@
 // On importe le core module path pour nous aider à avoir le path de la page html
 const path = require('path');
 
+const rootDir = require('../util/path');
+
 const express = require('express');
 
 const router = express.Router();
@@ -11,7 +13,7 @@ router.get('/', (req, res, next) => {
   // res.send("<h1>Hello from Express</h1>");
 
   // __dirname = global variable de nodejs (contient le chemin absolu de notre projet)
-  res.sendFile(path.join(__dirname, '../', 'views', 'shop.html'));
+  res.sendFile(path.join(rootDir, 'views', 'shop.html'));
 });
 
 module.exports = router;
