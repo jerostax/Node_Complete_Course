@@ -24,6 +24,8 @@ app.use((req, res, next) => {
 
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
+// Middleware pour server des fichiers statics
+app.use(express.static(path.join(__dirname, 'public')));
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
 app.use('/admin', adminRoutes);
