@@ -18,9 +18,15 @@ router.get('/', (req, res, next) => {
 
   // res.sendFile(path.join(rootDir, 'views', 'shop.html'));
 
+  // On passe nos data products dans une variable pour l'injecter dans notre template ensuite
+  const products = adminData.products;
+
   // Maintenant on va utiliser les templates engines (ici pug)
   // Pas besoin du path car on l'a déjà défini dans app.js => app.set('views', 'views')
-  res.render('shop');
+  // Le second argument représente les data que l'on veut passer au template en tant qu'objet
+  // On attache donc products à une clé que l'on a nommé prods ici
+  // On peut mtn utiliser prods ou encore docTitle dans notre template
+  res.render('shop', { prods: products, docTitle: 'Shop' });
 });
 
 module.exports = router;
