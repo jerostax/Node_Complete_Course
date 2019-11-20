@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 // On créé une nouvelle app express() stockée dans la variable app
 const app = express();
 // On importe l'objet Router du fichier admin.js qui contient nos routes "admin"
-const adminRoutes = require('./routes/admin');
+const adminData = require('./routes/admin');
 // On importe l'objet Router du fichier shop.js qui contient nos routes "shop"
 const shopRoutes = require('./routes/shop');
 
@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
-app.use('/admin', adminRoutes);
+app.use('/admin', adminData.routes);
 // Pareil avec nos routes "shop"
 app.use(shopRoutes);
 
