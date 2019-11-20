@@ -26,7 +26,13 @@ router.get('/', (req, res, next) => {
   // Le second argument représente les data que l'on veut passer au template en tant qu'objet
   // On attache donc products à une clé que l'on a nommé prods ici
   // On peut mtn utiliser prods ou encore pageTitle dans notre template
-  res.render('shop', { prods: products, pageTitle: 'Shop', path: '/' });
+  // NOTE : Avec handlebars template engines, on doit mettre la condition prods.length dans le Js qui va donc retourner true ou false
+  res.render('shop', {
+    prods: products,
+    pageTitle: 'Shop',
+    path: '/',
+    hasProducts: products.length > 0
+  });
 });
 
 module.exports = router;
