@@ -9,7 +9,15 @@ const expressHbs = require('express-handlebars');
 const app = express();
 
 // Ici on initilise le template engines handlebars
-app.engine('hbs', expressHbs());
+// note: on passe en option le layouts directory et le layout par défaut ainsi que l'extension .hbs
+app.engine(
+  'hbs',
+  expressHbs({
+    layoutsDir: 'views/layouts/',
+    defaultLayout: 'main-layout',
+    extname: 'hbs'
+  })
+);
 app.set('view engine', 'hbs');
 
 // on "set" une configuration globale pour les templates engines

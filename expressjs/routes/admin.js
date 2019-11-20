@@ -15,7 +15,10 @@ router.get('/add-product', (req, res, next) => {
   // On définit un path (peut être ce qu'on veut) pour pouvoir gérer du html dynamiquement en fonction du path (ex: class active)
   res.render('add-product', {
     pageTitle: 'Add Product',
-    path: '/admin/add-product'
+    path: '/admin/add-product',
+    activeAddProduct: true,
+    productCSS: true,
+    formsCSS: true
   });
 });
 // get() ne se déclenche que lorsqu'on reçoit des requêtes get contrairement à use() qui se déclenche à chaque fois
