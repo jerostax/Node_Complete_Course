@@ -3,10 +3,17 @@ const path = require('path');
 const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
+// On importe le template engines handlebars
+const expressHbs = require('express-handlebars');
 // On créé une nouvelle app express() stockée dans la variable app
 const app = express();
+
+// Ici on initilise le template engines handlebars
+app.engine('hbs', expressHbs());
+app.set('view engine', 'hbs');
+
 // on "set" une configuration globale pour les templates engines
-app.set('view engine', 'pug');
+// app.set('view engine', 'pug');
 // Le deuxieme paramètre 'views" fait référence au nom du dossier ou sont nos templates HTML
 app.set('views', 'views');
 
