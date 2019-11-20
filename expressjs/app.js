@@ -5,6 +5,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 // On créé une nouvelle app express() stockée dans la variable app
 const app = express();
+// on "set" une configuration globale pour les templates engines
+app.set('view engine', 'pug');
+// Le deuxieme paramètre 'views" fait référence au nom du dossier ou sont nos templates HTML
+app.set('views', 'views');
+
 // On importe l'objet Router du fichier admin.js qui contient nos routes "admin"
 const adminData = require('./routes/admin');
 // On importe l'objet Router du fichier shop.js qui contient nos routes "shop"

@@ -16,7 +16,11 @@ router.get('/', (req, res, next) => {
   console.log(adminData.products);
   // __dirname = global variable de nodejs (contient le chemin absolu de notre projet)
 
-  res.sendFile(path.join(rootDir, 'views', 'shop.html'));
+  // res.sendFile(path.join(rootDir, 'views', 'shop.html'));
+
+  // Maintenant on va utiliser les templates engines (ici pug)
+  // Pas besoin du path car on l'a déjà défini dans app.js => app.set('views', 'views')
+  res.render('shop');
 });
 
 module.exports = router;
