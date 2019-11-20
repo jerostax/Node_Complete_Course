@@ -5,36 +5,46 @@ const rootDir = require('../util/path');
 
 const express = require('express');
 
+const productsController = require('../controllers/products');
+
 const adminData = require('./admin');
 
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
-  console.log('In another middleware!');
-  // send() nous autorise à renvoyer une réponse (avec un body de type any)
-  // res.send("<h1>Hello from Express</h1>");
-  console.log(adminData.products);
-  // __dirname = global variable de nodejs (contient le chemin absolu de notre projet)
+// ***** AVEC LE MVC PATTERN *****
+router.get('/', productsController.getProducts);
 
-  // res.sendFile(path.join(rootDir, 'views', 'shop.html'));
-
-  // On passe nos data products dans une variable pour l'injecter dans notre template ensuite
-  const products = adminData.products;
-
-  // Maintenant on va utiliser les templates engines (ici pug)
-  // Pas besoin du path car on l'a déjà défini dans app.js => app.set('views', 'views')
-  // Le second argument représente les data que l'on veut passer au template en tant qu'objet
-  // On attache donc products à une clé que l'on a nommé prods ici
-  // On peut mtn utiliser prods ou encore pageTitle dans notre template
-  // NOTE : Avec handlebars template engines, on doit mettre la condition prods.length dans le Js qui va donc retourner true ou false
-  res.render('shop', {
-    prods: products,
-    pageTitle: 'Shop',
-    path: '/',
-    hasProducts: products.length > 0,
-    activeShop: true,
-    productCSS: true
-  });
-});
+// ***** SANS LE MVC PATTERN *****
+// *
+// *
+// *
+// router.get('/', (req, res, next) => {
+//   console.log('In another middleware!');
+//   send() nous autorise à renvoyer une réponse (avec un body de type any)
+//   //res.send("<h1>Hello from Express</h1>");
+//   console.log(adminData.products);
+//   __dirname = global variable de nodejs (contient le chemin absolu de notre projet)
+// *
+//   //res.sendFile(path.join(rootDir, 'views', 'shop.html'));
+// *
+//   On passe nos data products dans une variable pour l'injecter dans notre template ensuite
+//   const products = adminData.products;
+// *
+//   Maintenant on va utiliser les templates engines (ici pug)
+//   Pas besoin du path car on l'a déjà défini dans app.js => app.set('views', 'views')
+//   Le second argument représente les data que l'on veut passer au template en tant qu'objet
+//   On attache donc products à une clé que l'on a nommé prods ici
+//   On peut mtn utiliser prods ou encore pageTitle dans notre template
+//   NOTE : Avec handlebars template engines, on doit mettre la condition prods.length dans le Js qui va donc retourner true ou false
+// *
+//   res.render('shop', {
+//     prods: products,
+//     pageTitle: 'Shop',
+//     path: '/',
+//     hasProducts: products.length > 0,
+//     activeShop: true,
+//     productCSS: true
+//   });
+// });
 
 module.exports = router;

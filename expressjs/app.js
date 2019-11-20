@@ -4,6 +4,8 @@ const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
 
+const errorController = require('./controllers/error');
+
 // On importe le template engines handlebars
 // const expressHbs = require('express-handlebars');
 
@@ -30,7 +32,7 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 // On importe l'objet Router du fichier admin.js qui contient nos routes "admin"
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 // On importe l'objet Router du fichier shop.js qui contient nos routes "shop"
 const shopRoutes = require('./routes/shop');
 
@@ -52,15 +54,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 // Pareil avec nos routes "shop"
 app.use(shopRoutes);
 
+// 404 AVEC LE PATTERN MVC
+app.use(errorController.get404Page);
 // Ce dernier middleware va déclanger une erreur 404 car il sera executé uniquement si on a pas trouvé les routes des middlewares précedents
-app.use((req, res, next) => {
-  // res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-  res.status(404).render('404', { pageTitle: 'Page Not Found' });
-});
+// SANS LE PATTERN MVC
+// app.use((req, res, next) => {
+//   // res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+//   res.status(404).render('404', { pageTitle: 'Page Not Found' });
+// });
 
 // app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
 // et également d'executer listen() sur le port souhaiter
