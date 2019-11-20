@@ -25,8 +25,8 @@ router.get('/', (req, res, next) => {
   // Pas besoin du path car on l'a déjà défini dans app.js => app.set('views', 'views')
   // Le second argument représente les data que l'on veut passer au template en tant qu'objet
   // On attache donc products à une clé que l'on a nommé prods ici
-  // On peut mtn utiliser prods ou encore docTitle dans notre template
-  res.render('shop', { prods: products, docTitle: 'Shop' });
+  // On peut mtn utiliser prods ou encore pageTitle dans notre template
+  res.render('shop', { prods: products, pageTitle: 'Shop', path: '/' });
 });
 
 module.exports = router;

@@ -40,7 +40,7 @@ app.use(shopRoutes);
 // Ce dernier middleware va déclanger une erreur 404 car il sera executé uniquement si on a pas trouvé les routes des middlewares précedents
 app.use((req, res, next) => {
   // res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-  res.status(404).render('404');
+  res.status(404).render('404', { pageTitle: 'Page Not Found' });
 });
 
 // app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
