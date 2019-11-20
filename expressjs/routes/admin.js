@@ -10,7 +10,8 @@ const products = [];
 
 // /admon/add-product => GET
 router.get('/add-product', (req, res, next) => {
-  res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
+  // res.sendFile(path.join(rootDir, 'views', 'add-product.html'));
+  res.render('add-product', { pageTitle: 'Add Product' });
 });
 // get() ne se déclenche que lorsqu'on reçoit des requêtes get contrairement à use() qui se déclenche à chaque fois
 // note: post() pour déclencher que les requêtes post
