@@ -3,22 +3,26 @@ const path = require('path');
 const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
+
 // On importe le template engines handlebars
-const expressHbs = require('express-handlebars');
+// const expressHbs = require('express-handlebars');
+
 // On créé une nouvelle app express() stockée dans la variable app
 const app = express();
 
 // Ici on initilise le template engines handlebars
 // note: on passe en option le layouts directory et le layout par défaut ainsi que l'extension .hbs
-app.engine(
-  'hbs',
-  expressHbs({
-    layoutsDir: 'views/layouts/',
-    defaultLayout: 'main-layout',
-    extname: 'hbs'
-  })
-);
-app.set('view engine', 'hbs');
+// app.engine(
+//   'hbs',
+//   expressHbs({
+//     layoutsDir: 'views/layouts/',
+//     defaultLayout: 'main-layout',
+//     extname: 'hbs'
+//   })
+// );
+// app.set('view engine', 'hbs');
+
+app.set('view engine', 'ejs');
 
 // on "set" une configuration globale pour les templates engines
 // app.set('view engine', 'pug');
