@@ -3,6 +3,8 @@
 
 // On importe le model Product
 const Product = require('../models/product');
+// On importe le model Cart
+const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
   // On passe notre code en callback de la fonction fetchAll à cause du comportement asynchrone de la méthode fetchAll dans le model Product
@@ -17,6 +19,20 @@ exports.getProducts = (req, res, next) => {
       // productCSS: true
     });
   });
+};
+
+exports.getProduct = (req, res, next) => {
+  const prodId = req.params.productId;
+  console.log(
+    Product.findById(prodId, product => {
+      console.log(product);
+      res.render('shop/product-detail', {
+        product,
+        pageTitle: product.title,
+        path: '/products'
+      });
+    })
+  );
 };
 
 exports.getIndex = (req, res, next) => {
@@ -34,6 +50,14 @@ exports.getCart = (req, res, next) => {
     pageTitle: 'Your Cart',
     path: '/cart'
   });
+};
+
+exports.postCart = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product.findById(prodId, product => {
+    Cart.addProduct(prodId, product.price);
+  });
+  res.redirect('/cart');
 };
 
 exports.getOrders = (req, res, next) => {
