@@ -64,6 +64,21 @@ module.exports = class Product {
       }
     });
   }
+
+  static deleteById(id) {
+    getProductsFromFile(products => {
+      // Ici on va filtrer avec l'id du produit qu'on veut delete
+      // filter va créer un nouveau tableau avec tous les produits dont l'id NE MATCH PAS (donc le produit qu'on veux suppr n'est plus dans ce tableau)
+      const updatedProducts = products.filter(prod => prod.id !== id);
+      // Miantenant on va donc ré écrire le fichier JSON avec le nouveau tableau de produit qui ne contient plus celui qu'on veut suppr
+      fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+        if (!err) {
+          // Ici on va aussi enlever le produit du panier (cart) s'il n'y a pas d'erreur
+        }
+      });
+    });
+  }
+
   // Méthode pour "charger" nos produits
   static fetchAll(callback) {
     getProductsFromFile(callback);
