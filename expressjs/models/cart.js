@@ -34,13 +34,14 @@ module.exports = class Cart {
       } else {
         // Je pourrai utiliser syntaxe ES6 pour id mais je laisse comme ca pour qu'on se rende bien compte
         // La on créé donc un nouveau produit puisqu'il n'existe pas encore dans notre panier (on le stock dans la variable updatedProduct)
-        // On peut ainsi lui rajouter une propriété quantité de 1
+        // On peut ainsi lui rajouter une propriété quantité de 1 et un id dans le panier égale à son id de produit
         updatedProduct = { id: id, qty: 1 };
         // Enfin on fait une copie du tableau content nos produit et on y ajoute le nouveau produit updatedProduct
         cart.products = [...cart.products, updatedProduct];
       }
       // Enfin ici on calcule le prix total du panier en additionant ce qu'il y a déjà dedans + le nouveau produit qu'on y ajoute
-      cart.totalPrice = cart.totalPrice + productPrice;
+      // le '+' devant productPrice converti le prix string en number
+      cart.totalPrice = cart.totalPrice + +productPrice;
       // Enfin on 'écrit/enregistre" le nouveau produit dans notre panier cart sous forme de JSON
       fs.writeFile(p, JSON.stringify(cart), err => {
         console.log(err);
