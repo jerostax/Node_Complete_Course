@@ -5,14 +5,20 @@ const rootDir = require('../util/path');
 
 const express = require('express');
 
-const productsController = require('../controllers/products');
+const shopController = require('../controllers/shop');
 
 const adminData = require('./admin');
 
 const router = express.Router();
 
 // ***** AVEC LE MVC PATTERN *****
-router.get('/', productsController.getProducts);
+router.get('/', shopController.getIndex);
+
+router.get('/products', shopController.getProducts);
+
+router.get('/cart', shopController.getCart);
+
+router.get('/checkout', shopController.getCheckout);
 
 // ***** SANS LE MVC PATTERN *****
 // *
