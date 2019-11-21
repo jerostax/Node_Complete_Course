@@ -21,6 +21,8 @@ router.get('/edit-product/:productId', adminController.getEditProduct);
 // POST ROUTES
 router.post('/add-product', adminController.postAddProduct);
 
+router.post('/edit-product', adminController.postEditProduct);
+
 // ***** SANS LE MVC PATTERN *****
 // *
 // *

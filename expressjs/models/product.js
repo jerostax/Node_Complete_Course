@@ -25,7 +25,8 @@ const getProductsFromFile = callback => {
 };
 
 module.exports = class Product {
-  constructor(title, imageUrl, description, price) {
+  constructor(id, title, imageUrl, description, price) {
+    this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
@@ -34,17 +35,33 @@ module.exports = class Product {
 
   // Méthode pour sauvegarder les produits
   save() {
-    // On ajoute un id unique à chaque nouveau produit
-    this.id = Math.random().toString();
     // On récupère les produits qui sont dans le fichier JSON
     getProductsFromFile(products => {
-      // On ajoute le nouveau produit au tableau products
-      products.push(this);
-      // Ici on va enregistre/écrit le produit dans le fichier JSON
-      // On doit donc transformer l'array/obj... javascript en JSON grâce à stringify
-      fs.writeFile(p, JSON.stringify(products), err => {
-        console.log(err);
-      });
+      // Ici on vérifie si un id existe déjà (ce qui voudrai dire qu'on EDIT un produit qui est déjà stocké)
+      if (this.id) {
+        // Ensuite on retrouve le produit qui correspond à cet id
+        const existingProductIndex = products.findIndex(
+          prod => prod.id === this.id
+        );
+        // Maintenant on on fait une copie de notre tableau de produits
+        const updatedProducts = [...products];
+        // Et ensuite grâce à l'index on remplace le produit initial par le produit édité
+        updatedProducts[existingProductIndex] = this;
+        // On termine par le ré écrire dans le fichier JSON
+        fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+          console.log(err);
+        });
+      } else {
+        // On ajoute un id unique à chaque nouveau produit
+        this.id = Math.random().toString();
+        // On ajoute le nouveau produit au tableau products
+        products.push(this);
+        // Ici on va enregistre/écrit le produit dans le fichier JSON
+        // On doit donc transformer l'array/obj... javascript en JSON grâce à stringify
+        fs.writeFile(p, JSON.stringify(products), err => {
+          console.log(err);
+        });
+      }
     });
   }
   // Méthode pour "charger" nos produits
