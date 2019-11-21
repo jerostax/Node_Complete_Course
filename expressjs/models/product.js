@@ -34,6 +34,8 @@ module.exports = class Product {
 
   // Méthode pour sauvegarder les produits
   save() {
+    // On ajoute un id unique à chaque nouveau produit
+    this.id = Math.random().toString();
     // On récupère les produits qui sont dans le fichier JSON
     getProductsFromFile(products => {
       // On ajoute le nouveau produit au tableau products

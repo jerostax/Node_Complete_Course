@@ -1,1 +1,9 @@
-[{"title":"Harry Potter and the Deathly Hallows","imageUrl":"https://images-na.ssl-images-amazon.com/images/I/914CT7iyyvL.jpg","description":"Harry Potter and the Deathly Hallows is a fantasy novel written by British author J. K. Rowling and the seventh and final novel of the Harry Potter series. It was released on 21 July 2007 in the United Kingdom by Bloomsbury Publishing, in the United States by Scholastic, and in Canada by Raincoast Books. The novel chronicles the events directly following Harry Potter and the Half-Blood Prince (2005) and the final confrontation between the wizards Harry Potter and Lord Voldemort. ","price":"25"}]
+[
+  {
+    "title": "Harry Potter and the Deathly Hallows",
+    "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/914CT7iyyvL.jpg",
+    "description": "Harry Potter and the Deathly Hallows is a fantasy novel written by British author J. K. Rowling and the seventh and final novel of the Harry Potter series. It was released on 21 July 2007 in the United Kingdom by Bloomsbury Publishing, in the United States by Scholastic, and in Canada by Raincoast Books. The novel chronicles the events directly following Harry Potter and the Half-Blood Prince (2005) and the final confrontation between the wizards Harry Potter and Lord Voldemort. ",
+    "price": "25",
+    "id": "0.5200606749509684"
+  }
+]
