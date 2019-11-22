@@ -46,9 +46,30 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  res.render('shop/cart', {
-    pageTitle: 'Your Cart',
-    path: '/cart'
+  // On récupère le panier
+  Cart.getCart(cart => {
+    // On fetch tous les produits
+    Product.fetchAll(products => {
+      // On instancie un array dans lequel on pushera nos produits qui font parti du panier
+      const cartProducts = [];
+      // On boucle sur tous nos produits
+      for (product of products) {
+        // On vérifi si chaque produit est dans le panier ou pas
+        //(si le produit du panier à le même id que le produit sur lequel on est en train de boucler...)
+        const cartProductData = cart.products.find(
+          prod => prod.id === product.id
+        );
+        if (cartProductData) {
+          // Alors on push le produit et la quantité dans notre array cartProduct
+          cartProducts.push({ productData: product, qty: cartProductData.qty });
+        }
+      }
+      res.render('shop/cart', {
+        pageTitle: 'Your Cart',
+        path: '/cart',
+        products: cartProducts
+      });
+    });
   });
 };
 
