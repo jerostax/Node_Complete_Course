@@ -59,6 +59,10 @@ module.exports = class Cart {
       const updatedCart = { ...JSON.parse(fileContent) };
       // Maintenant on chercher le produit qu'on veut delete et donc qui match avec l'id
       const product = updatedCart.products.find(prod => prod.id === id);
+      // Si on a pas de produit qui match avec le panier on s'arrête
+      if (!product) {
+        return;
+      }
       // On stock la quantité du produit dans une variable
       const productQty = product.qty;
       // Ici on enl-ve le produit qu'on veut supprimer grâce à filter qui va copier le tableau avec tous les produits qui ne matchent pas l'id

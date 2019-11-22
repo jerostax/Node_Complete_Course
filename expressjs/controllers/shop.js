@@ -81,6 +81,17 @@ exports.postCart = (req, res, next) => {
   res.redirect('/cart');
 };
 
+exports.postCartDeleteProduct = (req, res, next) => {
+  // On récupère l'id du produit
+  const prodId = req.body.productId;
+  // Ici on va chercher le produit grâce à son id
+  Product.findById(prodId, product => {
+    // Maintenant on peut appliquer la méthode delete en y passant l'id et le prix en arg
+    Cart.deleteProduct(prodId, product.price);
+    res.redirect('/cart');
+  });
+};
+
 exports.getOrders = (req, res, next) => {
   res.render('shop/orders', {
     pageTitle: 'Your Orders',
