@@ -48,4 +48,46 @@ module.exports = class Cart {
       });
     });
   }
+
+  static deleteProduct(id, productPrice) {
+    fs.readFile(p, (err, fileContent) => {
+      if (err) {
+        // S'il y a une erreur c'est qu'il n'y a aucun produit dans le panier donc on peut return
+        return;
+      }
+      // Sinon on fait une copie du panier (tableau cart)
+      const updatedCart = { ...JSON.parse(fileContent) };
+      // Maintenant on chercher le produit qu'on veut delete et donc qui match avec l'id
+      const product = updatedCart.products.find(prod => prod.id === id);
+      // Si on a pas de produit qui match avec le panier on s'arrête
+      if (!product) {
+        return;
+      }
+      // On stock la quantité du produit dans une variable
+      const productQty = product.qty;
+      // Ici on enl-ve le produit qu'on veut supprimer grâce à filter qui va copier le tableau avec tous les produits qui ne matchent pas l'id
+      updatedCart.products = updatedCart.products.filter(
+        prod => prod.id !== id
+      );
+      // Maintenant pour update le prix du panier, on soustrait le prix actuel par le prix du produit x sa quantité
+      updatedCart.totalPrice =
+        updatedCart.totalPrice - productPrice * productQty;
+
+      // Pour terminer on va réécrire le panier avec le nouveau prix total et sans le produit qu'on a delete
+      fs.writeFile(p, JSON.stringify(updatedCart), err => {
+        console.log(err);
+      });
+    });
+  }
+
+  static getCart(callback) {
+    fs.readFile(p, (err, fileContent) => {
+      const cart = JSON.parse(fileContent);
+      if (err) {
+        callback(null);
+      } else {
+        callback(cart);
+      }
+    });
+  }
 };
