@@ -6,6 +6,9 @@ const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
 
+// Ici on importe notre pool (connecion) à notre bdd mysql
+const db = require('./util/database');
+
 // On importe le template engines handlebars
 // const expressHbs = require('express-handlebars');
 
@@ -35,6 +38,15 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 // On importe l'objet Router du fichier shop.js qui contient nos routes "shop"
 const shopRoutes = require('./routes/shop');
+
+// On execute une query sur notre table products de notre bdd mysql
+db.execute('SELECT * FROM products')
+  .then(result => {
+    console.log(result);
+  })
+  .catch(err => {
+    console.log(err);
+  });
 
 // use() nous autorise à ajouter une nouvelle fx middleware
 // La fx qu'on passe a use() sera excecutée à chaque requête entrante
