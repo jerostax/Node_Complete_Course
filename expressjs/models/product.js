@@ -48,6 +48,14 @@ module.exports = class Product {
 
   // Méthode pour sauvegarder les produits
   save() {
+    // Les champs doivent être nommés indentiquement à ceux défini dans la bdd
+    // On utilise ?, ?, ?, ? pour ce protéger des injections SQL (il doit y avoir autant de ? que de champs)
+    // On précise ensutie dans l'array à quoi vont correspondre les ?
+    return db.execute(
+      'INSERT INTO products (title, price, imageUrl, description) VALUES (?, ?, ?, ?)',
+      [this.title, this.price, this.imageUrl, this.description]
+    );
+
     // ***** PLUS BESOIN CAR ON VA MAINTENANT TRAVAILLER AVEC UNE BASE DE DONNEE *****
     // **
     // **
