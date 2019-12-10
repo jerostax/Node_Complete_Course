@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+require('dotenv').config();
 
 // On instancie un nouveau constructor sequelize qui prend plusieurs options
 // 1 : database name

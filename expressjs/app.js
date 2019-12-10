@@ -7,7 +7,10 @@ const bodyParser = require('body-parser');
 const errorController = require('./controllers/error');
 
 // Ici on importe notre pool (connecion) à notre bdd mysql
-const db = require('./util/database');
+// const db = require('./util/database');
+
+// Maintenant on va importe la bdd via sequelize
+const sequelize = require('./util/database');
 
 // On importe le template engines handlebars
 // const expressHbs = require('express-handlebars');
@@ -79,6 +82,14 @@ app.use(errorController.get404Page);
 //   res.status(404).render('404', { pageTitle: 'Page Not Found' });
 // });
 
-// app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
-// et également d'executer listen() sur le port souhaiter
-app.listen(3000);
+// La méthode sync() regarde tous les modèles qu'on a définit et créé les tables pour nous en bdd
+sequelize
+  .sync()
+  .then(result => {
+    // console.log(result);
+    // MAINTENANT QU'ON UTILISE SEQUELIZE, ON VA LANCER LE SERVER QUE SI ON A BIEN TROUVE NOS MODELES ET TABLES
+    // app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
+    // et également d'executer listen() sur le port souhaiter
+    app.listen(3000);
+  })
+  .catch(err => console.log(err));
