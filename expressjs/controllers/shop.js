@@ -47,6 +47,10 @@ exports.getProduct = (req, res, next) => {
       });
     })
     .catch(err => console.log(err));
+
+  // **** ANCIEN CODE AVEC LES PRODUITS STOCK DANS LES FICHIERS JSON ****
+  // **
+  // **
   // console.log(
   //   Product.findById(prodId, product => {
   //     console.log(product);
@@ -73,6 +77,7 @@ exports.getIndex = (req, res, next) => {
       });
     })
     .catch(err => console.log(err));
+
   // **** ANCIEN CODE AVEC LES PRODUITS STOCK DANS LES FICHIERS JSON ****
   // **
   // **
