@@ -38,16 +38,25 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  console.log(
-    Product.findById(prodId, product => {
-      console.log(product);
+  Product.findById(prodId)
+    .then(([product]) => {
       res.render('shop/product-detail', {
-        product,
-        pageTitle: product.title,
+        product: product[0],
+        pageTitle: product[0].title,
         path: '/products'
       });
     })
-  );
+    .catch(err => console.log(err));
+  // console.log(
+  //   Product.findById(prodId, product => {
+  //     console.log(product);
+  //     res.render('shop/product-detail', {
+  //       product,
+  //       pageTitle: product.title,
+  //       path: '/products'
+  //     });
+  //   })
+  // );
 };
 
 exports.getIndex = (req, res, next) => {
