@@ -8,17 +8,32 @@ const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
   // On passe notre code en callback de la fonction fetchAll à cause du comportement asynchrone de la méthode fetchAll dans le model Product
-  Product.fetchAll(products => {
-    res.render('shop/product-list', {
-      prods: products,
-      pageTitle: 'All Products',
-      path: '/products'
-      // Le code ci-dessous servait pour le template engine handlebars qui ne gère pas le js dans le template
-      // hasProducts: products.length > 0,
-      // activeShop: true,
-      // productCSS: true
+  Product.fetchAll()
+    .then(([rows, fieldData]) => {
+      res.render('shop/product-list', {
+        prods: rows,
+        pageTitle: 'All Products',
+        path: '/products'
+      });
+    })
+    .catch(err => {
+      console.log(err);
     });
-  });
+
+  // **** ANCIEN CODE AVEC LES PRODUITS STOCK DANS LES FICHIERS JSON ****
+  // **
+  // **
+  // Product.fetchAll(products => {
+  //   res.render('shop/product-list', {
+  //     prods: products,
+  //     pageTitle: 'All Products',
+  //     path: '/products'
+  //     // Le code ci-dessous servait pour le template engine handlebars qui ne gère pas le js dans le template
+  //     // hasProducts: products.length > 0,
+  //     // activeShop: true,
+  //     // productCSS: true
+  //   });
+  // });
 };
 
 exports.getProduct = (req, res, next) => {
@@ -36,13 +51,29 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll(products => {
-    res.render('shop/index', {
-      prods: products,
-      pageTitle: 'Shop',
-      path: '/'
-    });
-  });
+  // fetchAll() retourne mtn une promesse
+  Product.fetchAll()
+    // rows retourne les produits, fieldData retourne les caracs de la table
+    .then(([rows, fieldData]) => {
+      console.log('rows =>', rows);
+      console.log('fieldData =>', fieldData);
+      res.render('shop/index', {
+        prods: rows,
+        pageTitle: 'Shop',
+        path: '/'
+      });
+    })
+    .catch(err => console.log(err));
+  // **** ANCIEN CODE AVEC LES PRODUITS STOCK DANS LES FICHIERS JSON ****
+  // **
+  // **
+  // Product.fetchAll(products => {
+  //   res.render('shop/index', {
+  //     prods: products,
+  //     pageTitle: 'Shop',
+  //     path: '/'
+  //   });
+  // });
 };
 
 exports.getCart = (req, res, next) => {

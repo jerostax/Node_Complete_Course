@@ -40,13 +40,13 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 // On execute une query sur notre table products de notre bdd mysql
-db.execute('SELECT * FROM products')
-  .then(result => {
-    console.log(result);
-  })
-  .catch(err => {
-    console.log(err);
-  });
+// db.execute('SELECT * FROM products')
+//   .then(result => {
+//     console.log(result);
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });
 
 // use() nous autorise à ajouter une nouvelle fx middleware
 // La fx qu'on passe a use() sera excecutée à chaque requête entrante
