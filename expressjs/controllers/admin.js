@@ -13,13 +13,29 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
-  const product = new Product(null, title, imageUrl, description, price);
-  product
-    .save()
-    .then(() => {
-      res.redirect('/');
+  // La méthode create() nous est fournie par sequelize
+  Product.create({
+    // Attention, ici j'utilise la syntaxe ES6, title === title : title, etc
+    title,
+    price,
+    imageUrl,
+    description
+  })
+    .then(result => {
+      // console.log(result)
+      console.log('Product Created');
     })
     .catch(err => console.log(err));
+  // ***** ANCIEN CODE SANS SEQUELIZE *****
+  // **
+  // **
+  // const product = new Product(null, title, imageUrl, description, price);
+  // product
+  //   .save()
+  //   .then(() => {
+  //     res.redirect('/');
+  //   })
+  //   .catch(err => console.log(err));
 };
 
 exports.getEditProduct = (req, res, next) => {
