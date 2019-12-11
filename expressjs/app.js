@@ -70,6 +70,21 @@ app.use((req, res, next) => {
 app.use(bodyParser.urlencoded({ extended: false }));
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Ce code ne s'execute qu'après le server lancé quand on a une requête entrante
+// On cherche donc l'user avec l'id 1
+app.use((req, res, next) => {
+  User.findByPk(1)
+    .then(user => {
+      // Ici on ajoute le user à la requête (on ajoute un nouveau champs à notre objet requête)
+      // En gros on stock le user trouvé dans la bdd dans req.user
+      req.user = user;
+      // Si on a bien récupéré notre user et stocké dans l'objet req, on passe au next middlewares
+      next();
+    })
+    .catch(err => console.log(err));
+});
+
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
 app.use('/admin', adminRoutes);
@@ -93,9 +108,25 @@ User.hasMany(Product);
 // La méthode sync() regarde tous les modèles qu'on a définit et créé les tables pour nous en bdd
 sequelize
   // force: true nous permet de forcer la création de relation entre la table product et user avec la table product qui existait déjà avant la création du model User
-  .sync({ force: true })
+  // .sync({ force: true })
+  .sync()
   .then(result => {
+    // Ici on va d'abord chercher s'il existe au moins un User (en checkant l'id 1)
+    return User.findByPk(1);
     // console.log(result);
+  })
+  .then(user => {
+    // Maintenant si il n'y a pas encore de user on va en créer un
+    if (!user) {
+      return User.create({ name: 'Jérémy', email: 'jeremy.geneste@gmail.com' });
+    }
+    // S'il existe déjà un user alors on le return
+    return user;
+  })
+  .then(user => {
+    // A ce point la on sait qu'on a un user (soit il existait déjà, soit on l'a créé)
+    // console.log(user);
+    // On peut donc lancer le server
     // MAINTENANT QU'ON UTILISE SEQUELIZE, ON VA LANCER LE SERVER QUE SI ON A BIEN TROUVE NOS MODELES ET TABLES
     // app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
     // et également d'executer listen() sur le port souhaiter
