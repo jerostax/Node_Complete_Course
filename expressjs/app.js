@@ -14,6 +14,8 @@ const sequelize = require('./util/database');
 // Ici on défini nos modèles
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 // On importe le template engines handlebars
 // const expressHbs = require('express-handlebars');
@@ -104,6 +106,11 @@ app.use(errorController.get404Page);
 // L'objet en 2eme arg est optionel, ici ondit notamment de supprimer tous les produits en 'CASCADE' si le user associé est supprimé
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User);
+// through dit à sequelize ou la connexion entre les 2 devrait être enregistré
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 // La méthode sync() regarde tous les modèles qu'on a définit et créé les tables pour nous en bdd
 sequelize
