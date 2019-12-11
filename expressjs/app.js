@@ -11,6 +11,9 @@ const errorController = require('./controllers/error');
 
 // Maintenant on va importe la bdd via sequelize
 const sequelize = require('./util/database');
+// Ici on défini nos modèles
+const Product = require('./models/product');
+const User = require('./models/user');
 
 // On importe le template engines handlebars
 // const expressHbs = require('express-handlebars');
@@ -82,9 +85,15 @@ app.use(errorController.get404Page);
 //   res.status(404).render('404', { pageTitle: 'Page Not Found' });
 // });
 
+// Ici on définit les relations entre les modèles (sequelize)
+// L'objet en 2eme arg est optionel, ici ondit notamment de supprimer tous les produits en 'CASCADE' si le user associé est supprimé
+Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
+User.hasMany(Product);
+
 // La méthode sync() regarde tous les modèles qu'on a définit et créé les tables pour nous en bdd
 sequelize
-  .sync()
+  // force: true nous permet de forcer la création de relation entre la table product et user avec la table product qui existait déjà avant la création du model User
+  .sync({ force: true })
   .then(result => {
     // console.log(result);
     // MAINTENANT QU'ON UTILISE SEQUELIZE, ON VA LANCER LE SERVER QUE SI ON A BIEN TROUVE NOS MODELES ET TABLES
