@@ -185,10 +185,55 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findById(prodId, product => {
-    Cart.addProduct(prodId, product.price);
-  });
-  res.redirect('/cart');
+  // Ici on créé une variable pour stocker le panier et y avoir accès dans toutes les fonctions anonymes, notemment pour ajouter un nouveau produit dedans
+  let fetchedCart;
+  req.user
+    .getCart()
+    .then(cart => {
+      // On assigne donc le panier à la variable créée plus haut
+      fetchedCart = cart;
+      // Ici on récupère les produits déjà dans le panier grâce à l'id (ce qui va nous permettre d'incrémenter la quantité dans ce cas)
+      return cart.getProducts({ where: { id: prodId } });
+    })
+    .then(products => {
+      let product;
+      // Ici on vérifi qu'on a au moins un produit
+      if (products.length > 0) {
+        // Si on a bien au moins un produit, alors on assigne le premier à la variable product
+        product = products[0];
+      }
+      // On créé une variable pour la quantité du produit qui est de 1 au départ
+      let newQuantity = 1;
+      // Si on a bien un produit ça veut dire qu'on va incrémenter sa quantité donc
+      if (product) {
+        // Ici on va donc récupérer l'ancienne quantité et l'incrémenter pour ce produit déjà existant dans le panier
+      }
+      // Si on a aucun produit dans le panier qui correspond à l'id (le produit n'existe donc pas encore dans le panier)
+      // on va donc ajouter un nouveau produit dans le panier
+      return Product.findByPk(prodId)
+        .then(product => {
+          // addProduct() est une méthode créée par sequelize après avoir défini nos modèles et relations (manyToMany)
+          // Avec through nous permet de dire à sequelize qu'il y a des informations supplémentaires ou il faut set la valeur
+          // (ici quantity qui va être égale à la variable newQuantity qui est égale à 1 étant donné qu'on ajoute ce produit pour la premiere fois dans le panier)
+          return fetchedCart.addProduct(product, {
+            through: { quantity: newQuantity }
+          });
+        })
+        .catch(err => console.log(err));
+    })
+    .then(() => {
+      res.redirect('/cart');
+    })
+    .catch(err => console.log(err));
+
+  // **** ANCIEN CODE AVANT SEQUELIZE ****
+  // **
+  // **
+  // const prodId = req.body.productId;
+  // Product.findById(prodId, product => {
+  //   Cart.addProduct(prodId, product.price);
+  // });
+  // res.redirect('/cart');
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
