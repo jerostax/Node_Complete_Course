@@ -11,11 +11,13 @@ const errorController = require('./controllers/error');
 
 // Maintenant on va importe la bdd via sequelize
 const sequelize = require('./util/database');
-// Ici on défini nos modèles
+// Ici on importe nos modèles
 const Product = require('./models/product');
 const User = require('./models/user');
 const Cart = require('./models/cart');
 const CartItem = require('./models/cart-item');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 // On importe le template engines handlebars
 // const expressHbs = require('express-handlebars');
@@ -111,6 +113,9 @@ Cart.belongsTo(User);
 // through dit à sequelize ou la connexion entre les 2 devrait être enregistré
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
 
 // La méthode sync() regarde tous les modèles qu'on a définit et créé les tables pour nous en bdd
 sequelize
