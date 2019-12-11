@@ -7,18 +7,32 @@ const Product = require('../models/product');
 const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
-  // On passe notre code en callback de la fonction fetchAll à cause du comportement asynchrone de la méthode fetchAll dans le model Product
-  Product.fetchAll()
-    .then(([rows, fieldData]) => {
+  // Ici on utilise la méthode findAll() de sequelize
+  Product.findAll()
+    .then(products => {
       res.render('shop/product-list', {
-        prods: rows,
+        prods: products,
         pageTitle: 'All Products',
         path: '/products'
       });
     })
-    .catch(err => {
-      console.log(err);
-    });
+    .catch(err => console.log(err));
+
+  // **** ANCIEN CODE SANS SEQUELIZE ****
+  // **
+  // **
+  // // On passe notre code en callback de la fonction fetchAll à cause du comportement asynchrone de la méthode fetchAll dans le model Product
+  // Product.fetchAll()
+  //   .then(([rows, fieldData]) => {
+  //     res.render('shop/product-list', {
+  //       prods: rows,
+  //       pageTitle: 'All Products',
+  //       path: '/products'
+  //     });
+  //   })
+  //   .catch(err => {
+  //     console.log(err);
+  //   });
 
   // **** ANCIEN CODE AVEC LES PRODUITS STOCK DANS LES FICHIERS JSON ****
   // **
@@ -64,19 +78,33 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  // fetchAll() retourne mtn une promesse
-  Product.fetchAll()
-    // rows retourne les produits, fieldData retourne les caracs de la table
-    .then(([rows, fieldData]) => {
-      console.log('rows =>', rows);
-      console.log('fieldData =>', fieldData);
+  // Ici on utilise la méthode findAll() de sequelize
+  Product.findAll()
+    .then(products => {
       res.render('shop/index', {
-        prods: rows,
+        prods: products,
         pageTitle: 'Shop',
         path: '/'
       });
     })
     .catch(err => console.log(err));
+
+  // **** ANCIEN CODE SANS SEQUELIZE ****
+  // **
+  // **
+  // fetchAll() retourne mtn une promesse
+  // Product.fetchAll()
+  //   // rows retourne les produits, fieldData retourne les caracs de la table
+  //   .then(([rows, fieldData]) => {
+  //     console.log('rows =>', rows);
+  //     console.log('fieldData =>', fieldData);
+  //     res.render('shop/index', {
+  //       prods: rows,
+  //       pageTitle: 'Shop',
+  //       path: '/'
+  //     });
+  //   })
+  //   .catch(err => console.log(err));
 
   // **** ANCIEN CODE AVEC LES PRODUITS STOCK DANS LES FICHIERS JSON ****
   // **
