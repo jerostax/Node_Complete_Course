@@ -44,17 +44,33 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product.findById(prodId, product => {
-    if (!product) {
-      return res.redirect('/');
-    }
-    res.render('admin/edit-product', {
-      pageTitle: 'Edit Product',
-      path: '/admin/edit-product',
-      editing: editMode,
-      product
-    });
-  });
+  Product.findByPk(prodId)
+    .then(product => {
+      if (!product) {
+        return res.redirect('/');
+      }
+      res.render('admin/edit-product', {
+        pageTitle: 'Edit Product',
+        path: '/admin/edit-product',
+        editing: editMode,
+        product
+      });
+    })
+    .catch(err => console.log(err));
+  // **** ANCIEN CODE AVEC DATA SOTCK DANS JSON ****
+  // **
+  // **
+  // Product.findById(prodId, product => {
+  //   if (!product) {
+  //     return res.redirect('/');
+  //   }
+  //   res.render('admin/edit-product', {
+  //     pageTitle: 'Edit Product',
+  //     path: '/admin/edit-product',
+  //     editing: editMode,
+  //     product
+  //   });
+  // });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -63,15 +79,36 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDescription = req.body.description;
-  const updatedProduct = new Product(
-    prodId,
-    updatedTitle,
-    updatedImageUrl,
-    updatedDescription,
-    updatedPrice
-  );
-  updatedProduct.save();
-  res.redirect('/admin/products');
+  Product.findByPk(prodId)
+    .then(product => {
+      // On assigne les nouvelles valeurs (updated) de title, price, etc aux champs corrrespondant du model Product en bdd
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.description = updatedDescription;
+      product.imageUrl = updatedImageUrl;
+      // Ensuite on utilise la méthode save() de sequelize pour enregistrer et mettre à jour la bdd
+      return product.save();
+    })
+    // on return le produit une fois save et on chaine avec un then()
+    // Cela permet au catch() d'attraper les erreurs des 2 promesses (findByPk et save)
+    .then(result => {
+      console.log('Updated Product');
+      // Ici on dit de redirect uniquement quand la promesse est terminée
+      res.redirect('/admin/products');
+    })
+    .catch(err => console.log(err));
+  // **** ANCIEN CODE AVEC DATA SOTCK DANS JSON ****
+  // **
+  // **
+  // const updatedProduct = new Product(
+  //   prodId,
+  //   updatedTitle,
+  //   updatedImageUrl,
+  //   updatedDescription,
+  //   updatedPrice
+  // );
+  // updatedProduct.save();
+  // res.redirect('/admin/products');
 };
 
 exports.getProducts = (req, res, next) => {
