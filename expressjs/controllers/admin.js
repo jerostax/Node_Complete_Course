@@ -13,20 +13,41 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
-  // La méthode create() nous est fournie par sequelize
-  Product.create({
-    // Attention, ici j'utilise la syntaxe ES6, title === title : title, etc
-    title,
-    price,
-    imageUrl,
-    description
-  })
+  // Ici on utilise notre objet user qui est stocké dans la requête (remember: c'est un objet sequelize)
+  // La méthode createProduct() vient de sequelize (voir la doc sequelize)
+  // Elle a été créé automatiquement grâce aux relations qu'on a définit dans app.js
+  req.user
+    .createProduct({
+      // Attention, ici j'utilise la syntaxe ES6, title === title : title, etc
+      title,
+      price,
+      imageUrl,
+      description
+    })
     .then(result => {
       // console.log(result)
       console.log('Product Created');
       res.redirect('/admin/products');
     })
     .catch(err => console.log(err));
+
+  // **** ANCIEN CODE AVANT RELATION PRODUCT / USER ****
+  // **
+  // **
+  // La méthode create() nous est fournie par sequelize
+  // Product.create({
+  //   // Attention, ici j'utilise la syntaxe ES6, title === title : title, etc
+  //   title,
+  //   price,
+  //   imageUrl,
+  //   description
+  // })
+  //   .then(result => {
+  //     // console.log(result)
+  //     console.log('Product Created');
+  //     res.redirect('/admin/products');
+  //   })
+  //   .catch(err => console.log(err));
   // ***** ANCIEN CODE SANS SEQUELIZE *****
   // **
   // **
