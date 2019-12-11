@@ -4,7 +4,7 @@
 // On importe le model Product
 const Product = require('../models/product');
 // On importe le model Cart
-const Cart = require('../models/cart');
+// const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
   // Ici on utilise la méthode findAll() de sequelize
@@ -284,6 +284,36 @@ exports.postCartDeleteProduct = (req, res, next) => {
   // );
 };
 
+exports.postOrder = (req, res, next) => {
+  req.user
+    .getCart()
+    .then(cart => {
+      return cart.getProducts();
+    })
+    .then(products => {
+      // On créé une commande pour le user
+      return req.user
+        .createOrder()
+        .then(order => {
+          // On associe maintenant nos produits à la commande
+          return order.addProducts(
+            products.map(product => {
+              // On map sur tous les produits  ajouté dans la commande (order) et qui viennent du panier (cartItem) afin d'y ajouter une propriété quantité égale à celle du panier
+              product.orderItem = {
+                quantity: product.cartItem.quantity
+              };
+              return product;
+            })
+          );
+        })
+        .catch(err => console.log(err));
+    })
+    .then(result => {
+      console.log('Products added to Order');
+      res.redirect('/orders');
+    })
+    .catch(err => console.log(err));
+};
 exports.getOrders = (req, res, next) => {
   res.render('shop/orders', {
     pageTitle: 'Your Orders',
