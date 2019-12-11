@@ -251,12 +251,37 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   // On récupère l'id du produit
   const prodId = req.body.productId;
+  req.user
+    .getCart()
+    .then(cart => {
+      // On retourne le produit qui correspond à l'id
+      return cart.getProducts({ where: { id: prodId } });
+    })
+    .then(products => {
+      const product = products[0];
+      // Ensuite on veut supprimer le produit de la table de jointure cartItem
+      return product.cartItem.destroy();
+    })
+    .then(result => {
+      console.log('Product deleted from the cart');
+      res.redirect('/cart');
+    })
+    .catch(err => console.log(err));
+  // **** ANCIEN CODE AVANT SEQUELIZE ****
+  // **
+  // **
   // Ici on va chercher le produit grâce à son id
-  Product.findById(prodId, product => {
-    // Maintenant on peut appliquer la méthode delete en y passant l'id et le prix en arg
-    Cart.deleteProduct(prodId, product.price);
-    res.redirect('/cart');
-  });
+  // Product.findById(
+  //   prodId,
+  //   product => {
+  //     // Maintenant on peut appliquer la méthode delete en y passant l'id et le prix en arg
+  //     Cart.deleteProduct(
+  //       prodId,
+  //       product.price
+  //     );
+  //     res.redirect('/cart');
+  //   }
+  // );
 };
 
 exports.getOrders = (req, res, next) => {
