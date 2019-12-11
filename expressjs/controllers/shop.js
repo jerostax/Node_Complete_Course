@@ -133,31 +133,54 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
+  // getCart() est une méthode qui a été créé par sequelize après avoir défini nos modèles et relations
+  req.user
+    .getCart()
+    .then(cart => {
+      // console.log(cart);
+      // On peut maintenant fetch les produits à l'interieur du panier (cart) et les retourner
+      return cart
+        .getProducts()
+        .then(products => {
+          res.render('shop/cart', {
+            pageTitle: 'Your Cart',
+            path: '/cart',
+            // ES6 SYNTAXE
+            products
+          });
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+
+  // **** ANCIEN CODE AVANT SEQUELIZE ****
+  // **
+  // **
   // On récupère le panier
-  Cart.getCart(cart => {
-    // On fetch tous les produits
-    Product.fetchAll(products => {
-      // On instancie un array dans lequel on pushera nos produits qui font parti du panier
-      const cartProducts = [];
-      // On boucle sur tous nos produits
-      for (product of products) {
-        // On vérifi si chaque produit est dans le panier ou pas
-        //(si le produit du panier à le même id que le produit sur lequel on est en train de boucler...)
-        const cartProductData = cart.products.find(
-          prod => prod.id === product.id
-        );
-        if (cartProductData) {
-          // Alors on push le produit et la quantité dans notre array cartProduct
-          cartProducts.push({ productData: product, qty: cartProductData.qty });
-        }
-      }
-      res.render('shop/cart', {
-        pageTitle: 'Your Cart',
-        path: '/cart',
-        products: cartProducts
-      });
-    });
-  });
+  // Cart.getCart(cart => {
+  //   // On fetch tous les produits
+  //   Product.fetchAll(products => {
+  //     // On instancie un array dans lequel on pushera nos produits qui font parti du panier
+  //     const cartProducts = [];
+  //     // On boucle sur tous nos produits
+  //     for (product of products) {
+  //       // On vérifi si chaque produit est dans le panier ou pas
+  //       //(si le produit du panier à le même id que le produit sur lequel on est en train de boucler...)
+  //       const cartProductData = cart.products.find(
+  //         prod => prod.id === product.id
+  //       );
+  //       if (cartProductData) {
+  //         // Alors on push le produit et la quantité dans notre array cartProduct
+  //         cartProducts.push({ productData: product, qty: cartProductData.qty });
+  //       }
+  //     }
+  //     res.render('shop/cart', {
+  //       pageTitle: 'Your Cart',
+  //       path: '/cart',
+  //       products: cartProducts
+  //     });
+  //   });
+  // });
 };
 
 exports.postCart = (req, res, next) => {

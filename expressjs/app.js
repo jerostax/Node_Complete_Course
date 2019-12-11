@@ -133,6 +133,11 @@ sequelize
   .then(user => {
     // A ce point la on sait qu'on a un user (soit il existait déjà, soit on l'a créé)
     // console.log(user);
+    // On va donc maintenant créé un panier (cart) relié à cet user
+    return user.createCart();
+  })
+  .then(cart => {
+    // A ce point la on sait qu'on a un user un panier (cart) associé à lui
     // On peut donc lancer le server
     // MAINTENANT QU'ON UTILISE SEQUELIZE, ON VA LANCER LE SERVER QUE SI ON A BIEN TROUVE NOS MODELES ET TABLES
     // app.listen(port) nous permet à la fois d'appeler http.createServer() et y passer app en arg
