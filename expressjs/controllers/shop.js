@@ -285,9 +285,13 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
+  // On créé une variable pour stocker le panier
+  let fetchedCart;
   req.user
     .getCart()
     .then(cart => {
+      // On stock le panier dans notre variable fetchedcart
+      fetchedCart = cart;
       return cart.getProducts();
     })
     .then(products => {
@@ -298,7 +302,7 @@ exports.postOrder = (req, res, next) => {
           // On associe maintenant nos produits à la commande
           return order.addProducts(
             products.map(product => {
-              // On map sur tous les produits  ajouté dans la commande (order) et qui viennent du panier (cartItem) afin d'y ajouter une propriété quantité égale à celle du panier
+              // On map sur tous les produits  ajouté dans la commande (orderItem) et qui viennent du panier (cartItem) afin d'y ajouter une propriété quantité égale à celle du panier
               product.orderItem = {
                 quantity: product.cartItem.quantity
               };
@@ -309,16 +313,29 @@ exports.postOrder = (req, res, next) => {
         .catch(err => console.log(err));
     })
     .then(result => {
+      // Ici on vide le panier une fois que son contenu a été envoyé dans order (commande) grâce à une méthode fournie par sequelize
+      return fetchedCart.setProducts(null);
+    })
+    .then(result => {
       console.log('Products added to Order');
       res.redirect('/orders');
     })
     .catch(err => console.log(err));
 };
 exports.getOrders = (req, res, next) => {
-  res.render('shop/orders', {
-    pageTitle: 'Your Orders',
-    path: '/orders'
-  });
+  req.user
+    // Ici on dit à sequelize d'include les produits reliés aux orders (commandes)
+    // Comme ca on récupère un tableau d'orders (commandes) qui inclus les produits pour chaque order
+    .getOrders({ include: ['products'] })
+    .then(orders => {
+      res.render('shop/orders', {
+        pageTitle: 'Your Orders',
+        path: '/orders',
+        // ES6 SYNTAXE
+        orders
+      });
+    })
+    .catch(err => console.log(err));
 };
 
 exports.getCheckout = (req, res, next) => {
