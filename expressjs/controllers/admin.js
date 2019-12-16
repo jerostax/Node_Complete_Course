@@ -14,7 +14,7 @@ exports.postAddProduct = (req, res, next) => {
   const description = req.body.description;
   const price = req.body.price;
   // On istancie un nouveau produit (la class Product du modèle)
-  // note: qu'on on récupère l'id du user via la l'objet request, il est automatiquement converti en string (pas besoin de convertir en ObjectId())
+  // note: quand on récupère l'id du user via la l'objet request, il est automatiquement converti en string (pas besoin de convertir en ObjectId())
   const product = new Product(
     title,
     price,
