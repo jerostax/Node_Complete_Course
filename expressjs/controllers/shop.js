@@ -81,37 +81,9 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  // On créé une variable pour stocker le panier
-  let fetchedCart;
   req.user
-    .getCart()
-    .then(cart => {
-      // On stock le panier dans notre variable fetchedcart
-      fetchedCart = cart;
-      return cart.getProducts();
-    })
-    .then(products => {
-      // On créé une commande pour le user
-      return req.user
-        .createOrder()
-        .then(order => {
-          // On associe maintenant nos produits à la commande
-          return order.addProducts(
-            products.map(product => {
-              // On map sur tous les produits  ajouté dans la commande (orderItem) et qui viennent du panier (cartItem) afin d'y ajouter une propriété quantité égale à celle du panier
-              product.orderItem = {
-                quantity: product.cartItem.quantity
-              };
-              return product;
-            })
-          );
-        })
-        .catch(err => console.log(err));
-    })
-    .then(result => {
-      // Ici on vide le panier une fois que son contenu a été envoyé dans order (commande) grâce à une méthode fournie par sequelize
-      return fetchedCart.setProducts(null);
-    })
+    // On déclenche simplement la méthode addOrder() définie dans notre model User
+    .addOrder()
     .then(result => {
       console.log('Products added to Order');
       res.redirect('/orders');

@@ -99,6 +99,24 @@ class User {
       );
   }
 
+  addOrder() {
+    const db = getDb();
+    return db
+      .collection('orders')
+      .insertOne(this.cart)
+      .then(result => {
+        // Une fois qu'on a ajouté le panier en commande (order), on le vide de ses items
+        this.cart = { items: [] };
+        // On vide le panier en bdd également
+        return db
+          .collection('users')
+          .updateOne(
+            { _id: new mongodb.ObjectID(this._id) },
+            { $set: { cart: { items: [] } } }
+          );
+      });
+  }
+
   static findById(userId) {
     const db = getDb();
     return db
