@@ -101,9 +101,20 @@ class User {
 
   addOrder() {
     const db = getDb();
-    return db
-      .collection('orders')
-      .insertOne(this.cart)
+    // On utilise la méthode getCart() de notre classe pour récupérer les datas du panier
+    return this.getCart()
+      .then(products => {
+        const order = {
+          items: products,
+          user: {
+            _id: new mongodb.ObjectID(this._id),
+            name: this.username
+          }
+        };
+        // On ajoute notre variable order qui contient le détails des produits et l'utilisateur attaché
+        return db.collection('orders').insertOne(order);
+      })
+
       .then(result => {
         // Une fois qu'on a ajouté le panier en commande (order), on le vide de ses items
         this.cart = { items: [] };
@@ -117,6 +128,10 @@ class User {
       });
   }
 
+  getOrders() {
+    const db = getDb();
+    // return db.collection('orders').
+  }
   static findById(userId) {
     const db = getDb();
     return db
