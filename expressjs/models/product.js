@@ -4,7 +4,7 @@ const getDb = require('../util/database').getDb;
 
 class Product {
   // On définit les "champs" de notre modele product dans le constructor
-  constructor(title, price, description, imageUrl, id) {
+  constructor(title, price, description, imageUrl, id, userId) {
     this.title = title;
     this.price = price;
     this.description = description;
@@ -13,6 +13,7 @@ class Product {
     // car l'id stocké dans mongodb est sous formee d'ObjectId (un objet propre à mongodb)
     // On check avec une condition ternaire si il existe déjà un id, sinon on set à null pour éviter de faire bugger la condition qui check l'id dans la méthode save()
     this._id = id ? new mongodb.ObjectId(id) : null;
+    this.userId = userId;
   }
 
   save() {

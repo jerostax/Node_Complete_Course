@@ -14,7 +14,15 @@ exports.postAddProduct = (req, res, next) => {
   const description = req.body.description;
   const price = req.body.price;
   // On istancie un nouveau produit (la class Product du modèle)
-  const product = new Product(title, price, description, imageUrl);
+  // note: qu'on on récupère l'id du user via la l'objet request, il est automatiquement converti en string (pas besoin de convertir en ObjectId())
+  const product = new Product(
+    title,
+    price,
+    description,
+    imageUrl,
+    null,
+    req.user._id
+  );
   product
     // On utilise notre méthode save() du modèle qui enregistre dans la collection products
     .save()
