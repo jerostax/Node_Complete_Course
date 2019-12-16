@@ -11,7 +11,8 @@ class Product {
     this.imageUrl = imageUrl;
     // Ici on utilise new mongodb.ObjectId pour être capable de comparer les 2 id,
     // car l'id stocké dans mongodb est sous formee d'ObjectId (un objet propre à mongodb)
-    this._id = new mongodb.ObjectId(id);
+    // On check avec une condition ternaire si il existe déjà un id, sinon on set à null pour éviter de faire bugger la condition qui check l'id dans la méthode save()
+    this._id = id ? new mongodb.ObjectId(id) : null;
   }
 
   save() {
