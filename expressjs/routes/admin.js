@@ -1,20 +1,20 @@
-const path = require('path');
+// const path = require('path');
 
 const express = require('express');
 // On importe notre products controller
 const adminController = require('../controllers/admin');
 
-const rootDir = require('../util/path');
+// const rootDir = require('../util/path');
 // On utilise le Router d'express
 const router = express.Router();
 
-const products = [];
+// const products = [];
 
 // ***** AVEC LE MVC PATTERN *****
 // GET ROUTES
 router.get('/add-product', adminController.getAddProduct);
 
-// router.get('/products', adminController.getProducts);
+router.get('/products', adminController.getProducts);
 
 // router.get('/edit-product/:productId', adminController.getEditProduct);
 
