@@ -16,7 +16,7 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
-// const shopRoutes = require('./routes/shop');
+const shopRoutes = require('./routes/shop');
 
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -26,8 +26,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
 app.use('/admin', adminRoutes);
-// // Pareil avec nos routes "shop"
-// app.use(shopRoutes);
+// Pareil avec nos routes "shop"
+app.use(shopRoutes);
 
 // 404 AVEC LE PATTERN MVC
 app.use(errorController.get404Page);
