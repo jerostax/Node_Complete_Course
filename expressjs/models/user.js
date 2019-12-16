@@ -1,10 +1,11 @@
 const mongodb = require('mongodb');
 const getDb = require('../util/database').getDb;
 class User {
-  constructor(username, email, id) {
+  constructor(username, email, cart, id) {
     this.name = username;
     this.email = email;
-    this._id = id ? new mongodb.ObjectId(id) : null;
+    this.cart = cart; // {items: []}
+    this._id = id;
   }
   save() {
     const db = getDb();
@@ -13,6 +14,22 @@ class User {
       .insertOne(this)
       .then(result => console.log(result))
       .catch(err => console.log(err));
+  }
+
+  addToCart(product) {
+    // Ici on stock dans cartProduct si il y a déjà un produit avec le même id dedans ou pas
+    // const cartProduct = this.cart.items.findIndex(cp => cp._id === product._id);
+
+    // Ici on update le panier avec le produit et on y rajoutant une valeur quantity de 1
+    const updatedCart = { items: [{ ...product, quantity: 1 }] };
+    const db = getDb();
+    // Mtn on utilise la méthode updateOne() pour mettre à jour le panier
+    return db
+      .collection('users')
+      .updateOne(
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: updatedCart } }
+      );
   }
 
   static findById(userId) {
