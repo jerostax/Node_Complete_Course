@@ -15,8 +15,8 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  // findByPk() est une méthode de sequelize qui permet de faire un findById()
-  Product.findByPk(prodId)
+  // Ici on utilise la méthode findById() définie dans le modèle Product
+  Product.findById(prodId)
     .then(product => {
       res.render('shop/product-detail', {
         product: product,

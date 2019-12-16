@@ -1,3 +1,5 @@
+const mongodb = require('mongodb');
+
 const getDb = require('../util/database').getDb;
 
 class Product {
@@ -35,6 +37,25 @@ class Product {
         return products;
       })
       .catch(err => console.log(err));
+  }
+
+  static findById(prodId) {
+    const db = getDb();
+    // On utilise mtn la méthode find() mais avec un filtre qui chercher l'id correspondant
+    // on utilise next() pour dire à mongoDB qu'on veut le dernier document retourné par la méthode find()
+    return (
+      db
+        .collection('products')
+        // Ici on utilise new mongodb.ObjectId pour être capable de comparer les 2 id,
+        // car l'id stocké dans mongodb est sous former d'ObjectId (un objet propre à mongodb)
+        .find({ _id: new mongodb.ObjectId(prodId) })
+        .next()
+        .then(product => {
+          console.log(product);
+          return product;
+        })
+        .catch(err => console.log(err))
+    );
   }
 }
 
