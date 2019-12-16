@@ -1,4 +1,7 @@
+const mongodb = require('mongodb');
 const Product = require('../models/product');
+
+const ObjectId = mongodb.ObjectID;
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -32,7 +35,6 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  // Ici on cherche les produits qui ont relié a l'user (retourne un tableau)
   Product.findById(prodId)
     .then(product => {
       if (!product) {
@@ -54,18 +56,18 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDescription = req.body.description;
-  Product.findByPk(prodId)
-    .then(product => {
-      // On assigne les nouvelles valeurs (updated) de title, price, etc aux champs corrrespondant du model Product en bdd
-      product.title = updatedTitle;
-      product.price = updatedPrice;
-      product.description = updatedDescription;
-      product.imageUrl = updatedImageUrl;
-      // Ensuite on utilise la méthode save() de sequelize pour enregistrer et mettre à jour la bdd
-      return product.save();
-    })
-    // on return le produit une fois save et on chaine avec un then()
-    // Cela permet au catch() d'attraper les erreurs des 2 promesses (findByPk et save)
+  // Ici on créé un nouveau product avec les data à jour
+  // On y passe aussi un nouvel objectId pour mongoDB avec l'id du product
+  const product = new Product(
+    updatedTitle,
+    updatedPrice,
+    updatedDescription,
+    updatedImageUrl,
+    new ObjectId(prodId)
+  );
+  // Ensuite on save() le product édité
+  product
+    .save()
     .then(result => {
       console.log('Updated Product');
       // Ici on dit de redirect uniquement quand la promesse est terminée
