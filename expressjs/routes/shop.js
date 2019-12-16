@@ -20,8 +20,8 @@ router.get('/products/:productId', shopController.getProduct);
 
 // // GET card
 // router.get('/cart', shopController.getCart);
-// // POST card
-// router.post('/cart', shopController.postCart);
+// POST card
+router.post('/cart', shopController.postCart);
 
 // router.post('/cart-delete-item', shopController.postCartDeleteProduct);
 

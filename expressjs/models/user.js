@@ -20,14 +20,16 @@ class User {
     // Ici on stock dans cartProduct si il y a déjà un produit avec le même id dedans ou pas
     // const cartProduct = this.cart.items.findIndex(cp => cp._id === product._id);
 
-    // Ici on update le panier avec le produit et on y rajoutant une valeur quantity de 1
-    const updatedCart = { items: [{ ...product, quantity: 1 }] };
+    // Ici on update le panier avec l'id du produit et on y rajoutant une valeur quantity de 1
+    const updatedCart = {
+      items: [{ productId: new mongodb.ObjectId(product.id), quantity: 1 }]
+    };
     const db = getDb();
     // Mtn on utilise la méthode updateOne() pour mettre à jour le panier
     return db
       .collection('users')
       .updateOne(
-        { _id: new ObjectId(this._id) },
+        { _id: new mongodb.ObjectId(this._id) },
         { $set: { cart: updatedCart } }
       );
   }
@@ -36,7 +38,7 @@ class User {
     const db = getDb();
     return db
       .collection('users')
-      .find({ _id: new mongodb.ObjectID(userId) })
+      .find({ _id: new mongodb.ObjectId(userId) })
       .next()
       .then(user => {
         console.log(user);
