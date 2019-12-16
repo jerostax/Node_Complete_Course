@@ -58,6 +58,31 @@ class User {
       );
   }
 
+  getCart() {
+    const db = getDb();
+    const productIds = this.cart.items.map(i => {
+      return i.productId;
+    });
+    // On utilise l'opérateur de mongoDB $in pour matcher les id
+    // Ca nous permet donc de retourner tous les produits de la collection products qui ont le même id que ceux dans le panier (cart)
+    return db
+      .collection('products')
+      .find({ _id: { $in: productIds } })
+      .toArray()
+      .then(products => {
+        // Ensuite on veut mapper sur tous ces produits pour y ajouter leur quantité
+        return products.map(p => {
+          // On copie donc chaque objet produit et on lui rajouter la quantité qu'on a dans le cart.item
+          return {
+            ...p,
+            quantity: this.cart.items.find(i => {
+              return i.productId.toString() === p._id.toString();
+            }).quantity // a la fin c'est la quantité de chaque produit qu'on retourne
+          };
+        });
+      });
+  }
+
   static findById(userId) {
     const db = getDb();
     return db
