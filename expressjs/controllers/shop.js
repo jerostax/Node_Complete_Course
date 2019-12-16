@@ -90,11 +90,10 @@ exports.postOrder = (req, res, next) => {
     })
     .catch(err => console.log(err));
 };
+
 exports.getOrders = (req, res, next) => {
   req.user
-    // Ici on dit à sequelize d'include les produits reliés aux orders (commandes)
-    // Comme ca on récupère un tableau d'orders (commandes) qui inclus les produits pour chaque order
-    .getOrders({ include: ['products'] })
+    .getOrders()
     .then(orders => {
       res.render('shop/orders', {
         pageTitle: 'Your Orders',

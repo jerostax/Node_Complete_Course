@@ -130,7 +130,12 @@ class User {
 
   getOrders() {
     const db = getDb();
-    // return db.collection('orders').
+    // le filtre 'user._id' va chercher à l'interieur de la collection, le champs _id dans le champs user
+    // On filtre donc pour trouver l'order qui a un id user égale à l'id du user
+    return db
+      .collection('orders')
+      .find({ 'user._id': new mongodb.ObjectID(this._id) })
+      .toArray();
   }
   static findById(userId) {
     const db = getDb();
