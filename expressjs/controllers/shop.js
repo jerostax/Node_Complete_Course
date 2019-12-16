@@ -72,16 +72,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
   // On récupère l'id du produit
   const prodId = req.body.productId;
   req.user
-    .getCart()
-    .then(cart => {
-      // On retourne le produit qui correspond à l'id
-      return cart.getProducts({ where: { id: prodId } });
-    })
-    .then(products => {
-      const product = products[0];
-      // Ensuite on veut supprimer le produit de la table de jointure cartItem
-      return product.cartItem.destroy();
-    })
+    .deleteItemFromCart(prodId)
     .then(result => {
       console.log('Product deleted from the cart');
       res.redirect('/cart');

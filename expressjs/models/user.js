@@ -83,6 +83,22 @@ class User {
       });
   }
 
+  deleteItemFromCart(productId) {
+    // filter() retourne un nouveau tableau avec les éléments correspondant au filtre (ici l'id)
+    // on retourne uniquement les produits qui matchent pas avec l'id de celui qu'on veux delete
+    const updatedCartItems = this.cart.items.filter(item => {
+      return item.productId.toString() !== productId.toString();
+    });
+    // On a plus qu'a update les items du cart en bdd
+    const db = getDb();
+    return db
+      .collection('users')
+      .updateOne(
+        { _id: new mongodb.ObjectId(this._id) },
+        { $set: { cart: { items: updatedCartItems } } }
+      );
+  }
+
   static findById(userId) {
     const db = getDb();
     return db
