@@ -9,7 +9,9 @@ class Product {
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
-    this._id = id;
+    // Ici on utilise new mongodb.ObjectId pour être capable de comparer les 2 id,
+    // car l'id stocké dans mongodb est sous formee d'ObjectId (un objet propre à mongodb)
+    this._id = new mongodb.ObjectId(id);
   }
 
   save() {
@@ -28,7 +30,7 @@ class Product {
         // Dans ce cas, on utilise la méthode updateOne() de mongodb pour mettre à jour le product
         // En premier argument on check l'id
         // En deuxième argument, on utilise une annotation particulière à mongodb ($set) et on lui dit de "set" les "champs" de la collection product avec toutes nos propriété de this
-        .updateOne({ _id: new mongodb.ObjectID(this._id) }, { $set: this });
+        .updateOne({ _id: this._id }, { $set: this });
     } else {
       // On enregistre la connexion dans un autre variable dbOp déclarée plus haut
       // Ici on va créer un nouveau produit donc pas besoin de check l'id comme plus haut
@@ -59,19 +61,15 @@ class Product {
     const db = getDb();
     // On utilise mtn la méthode find() mais avec un filtre qui chercher l'id correspondant
     // on utilise next() pour dire à mongoDB qu'on veut le dernier document retourné par la méthode find()
-    return (
-      db
-        .collection('products')
-        // Ici on utilise new mongodb.ObjectId pour être capable de comparer les 2 id,
-        // car l'id stocké dans mongodb est sous former d'ObjectId (un objet propre à mongodb)
-        .find({ _id: new mongodb.ObjectId(prodId) })
-        .next()
-        .then(product => {
-          console.log(product);
-          return product;
-        })
-        .catch(err => console.log(err))
-    );
+    return db
+      .collection('products')
+      .find({ _id: new mongodb.ObjectID(prodId) })
+      .next()
+      .then(product => {
+        console.log(product);
+        return product;
+      })
+      .catch(err => console.log(err));
   }
 }
 
