@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
 const mongoConnect = require('./util/database').mongoConnect;
+const User = require('./models/user');
 
 const app = express();
 
@@ -22,6 +23,17 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({ extended: false }));
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Ici on cherche le user dans la bdd avec son id et on le stock ensuite dans l'objet request
+app.use((req, res, next) => {
+  User.findById('5df7995e660c771c1462377a')
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => console.log(err));
+  next();
+});
 
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)

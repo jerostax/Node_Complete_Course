@@ -61,7 +61,7 @@ class Product {
   static findById(prodId) {
     const db = getDb();
     // On utilise mtn la méthode find() mais avec un filtre qui chercher l'id correspondant
-    // on utilise next() pour dire à mongoDB qu'on veut le dernier document retourné par la méthode find()
+    // on utilise next() pour dire à mongoDB qu'on veut le premier document retourné par la méthode find()
     return db
       .collection('products')
       .find({ _id: new mongodb.ObjectID(prodId) })
