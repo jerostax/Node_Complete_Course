@@ -1,0 +1,17 @@
+.container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+img {
+  align-self: center;
+}
+h1 {
+  position: absolute;
+  top: 30%;
+  font-size: 6rem;
+  color: #505c9c;
+  -webkit-text-fill-color: white;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black;
+}
