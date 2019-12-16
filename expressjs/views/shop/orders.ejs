@@ -1,4 +1,5 @@
 <%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/orders.css">
     </head>
 
     <body>
@@ -7,14 +8,14 @@
             <% if(orders.length <= 0) { %>
                 <h1>No Order!</h1>
             <% } else { %>
-                <ul>
+                <ul class="orders"> 
                     <% orders.forEach(order => { %>
-                        <li>
-                            <h1>#<%= order.id %></h1>
-                            <ul>
+                        <li class="orders__item">
+                            <h1>#<%= order._id %></h1>
+                            <ul class="orders__products">
                                 <!-- products correspond à la liste des produits contenu dans le tableau de l'order (qu'on a include dans la méthode getOrder() du controller shop.js-->
-                                <% order.products.forEach(product => { %>
-                                    <li><%= product.title %> (<%= product.orderItem.quantity %>)</li>
+                                <% order.items.forEach(product => { %>
+                                    <li class="orders__products-item"><%= product.title %> (<%= product.quantity %>)</li>
                                 <% }); %>
                             </ul>
                         </li>
