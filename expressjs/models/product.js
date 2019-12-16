@@ -4,22 +4,38 @@ const getDb = require('../util/database').getDb;
 
 class Product {
   // On définit les "champs" de notre modele product dans le constructor
-  constructor(title, price, description, imageUrl) {
+  constructor(title, price, description, imageUrl, id) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
+    this._id = id;
   }
 
   save() {
     // On enregistre la connexion à notre bdd
     const db = getDb();
-    // On dit à mongoDB avec quelle collection on veux travailler (si elle existe pas elle sera créée automatiquement)
-    // On utilise la méthode insertOne() (existe aussi insertMany) pour insérer un nouveau produit dans la collection
-    // On y insert donc 'this' qui représente notre title/price/description/imageUrl d'un product
-    return db
-      .collection('products')
-      .insertOne(this)
+    // dbOp = databse operation
+    let dbOp;
+    // On check si le produit existe déjà et dans ce cas la on va l'update/edit
+    if (this._id) {
+      // On enregistre la connexion dans un autre variable dbOp déclarée plus haut
+      dbOp = db
+        // On dit à mongoDB avec quelle collection on veux travailler (si elle existe pas elle sera créée automatiquement)
+        // On utilise la méthode insertOne() (existe aussi insertMany) pour insérer un nouveau produit dans la collection
+        // On y insert donc 'this' qui représente notre title/price/description/imageUrl d'un product
+        .collection('products')
+        // Dans ce cas, on utilise la méthode updateOne() de mongodb pour mettre à jour le product
+        // En premier argument on check l'id
+        // En deuxième argument, on utilise une annotation particulière à mongodb ($set) et on lui dit de "set" les "champs" de la collection product avec toutes nos propriété de this
+        .updateOne({ _id: new mongodb.ObjectID(this._id) }, { $set: this });
+    } else {
+      // On enregistre la connexion dans un autre variable dbOp déclarée plus haut
+      // Ici on va créer un nouveau produit donc pas besoin de check l'id comme plus haut
+      dbOp = db.collection('products').insertOne(this);
+    }
+
+    return dbOp
       .then(result => console.log(result))
       .catch(err => console.log(err));
   }
