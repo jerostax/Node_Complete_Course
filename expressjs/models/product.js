@@ -1,36 +1,26 @@
-// On importe sequelize
-const Sequelize = require('sequelize');
-// On importe la connexion à la db (pool de connexion)
-const sequelize = require('../util/database');
+const getDb = require('../util/database').getDb;
 
-// On défini notre modèle Product grâce à la méthode define() de sequelize
-// Le premier arg défini le nom de notre modèle
-// Le second arg défini la structure
-const Product = sequelize.define('product', {
-  // Ici on défini donc la structure de notre table avec le type des champs notamment (ici également l'auto-incrémentation, l'impossibilité d'avoir le champs null et dire que c'est la clé primaire)
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true
-  },
-  title: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  price: {
-    type: Sequelize.DOUBLE,
-    allowNull: false
-  },
-  imageUrl: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  description: {
-    type: Sequelize.STRING,
-    allowNull: false
+class Product {
+  // On définit les "champs" de notre modele product dans le constructor
+  constructor(title, price, description, imageUrl) {
+    this.title = title;
+    this.price = price;
+    this.description = description;
+    this.imageUrl = imageUrl;
   }
-});
 
-// Enfin on exporte le modèle Product
+  save() {
+    // On enregistre la connexion à notre bdd
+    const db = getDb();
+    // On dit à mongoDB avec quelle collection on veux travailler (si elle existe pas elle sera créée automatiquement)
+    // On utilise la méthode insertOne (existe aussi insertMany) pour insérer un nouveau produit dans la collection
+    // On y insert donc 'this' qui représente notre title/price/description/imageUrl d'un product
+    return db
+      .collection('products')
+      .insertOne(this)
+      .then(result => console.log(result))
+      .catch(err => console.log(err));
+  }
+}
+
 module.exports = Product;
