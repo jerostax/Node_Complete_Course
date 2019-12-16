@@ -86,16 +86,12 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
-// exports.postDeleteProduct = (req, res, next) => {
-//   const prodId = req.body.productId;
-//   Product.findByPk(prodId)
-//     // destroy() est une méthode de sequelize qui permet de supprimer un produit en bdd
-//     .then(product => {
-//       return product.destroy();
-//     })
-//     .then(result => {
-//       console.log('Product deleted');
-//       res.redirect('/admin/products');
-//     })
-//     .catch(err => console.log(err));
-// };
+exports.postDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product.deleteById(prodId)
+    .then(() => {
+      console.log('Product deleted');
+      res.redirect('/admin/products');
+    })
+    .catch(err => console.log(err));
+};
