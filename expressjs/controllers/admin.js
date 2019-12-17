@@ -113,6 +113,13 @@ exports.getProducts = (req, res, next) => {
   // *
 
   Product.find()
+    // populate() est une méthode de mongoose qui nous permet de dire qu'on avoir toutes les datas et pas seulement l'id (ici pour l'user)
+    // Comme ça on a tout l'objet user avec son name et email
+    // Une alternative existe avec select() qui permet de choisir quels champs précisement
+    // ex: .select('title price -_id)   (-_id, le '-' signifie qu'on veux exclure l'id)
+    // On peut passer en 2eme arg de populate les champs qu'on souhaite avoir
+    // ex: opulate('userId', 'name')
+    // .populate('userId') = nous permet d'avoir tous les champs du user
     .then(products => {
       res.render('admin/products', {
         prods: products,
