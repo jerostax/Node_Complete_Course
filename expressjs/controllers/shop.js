@@ -54,8 +54,25 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
-    .then(products => {
+    // **** Code sans mongoose ****
+    // *
+    // .getCart()
+    // .then(products => {
+    //   res.render('shop/cart', {
+    //     pageTitle: 'Your Cart',
+    //     path: '/cart',
+    //     // ES6 SYNTAXE
+    //     products
+    //   });
+    // })
+    // *
+
+    // Ici on dit de "populate" avec les datas de cart.items.productId, donc les datas des produits du panier
+    .populate('cart.items.productId')
+    // Execute le populate sur les produits du panier
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items;
       res.render('shop/cart', {
         pageTitle: 'Your Cart',
         path: '/cart',
