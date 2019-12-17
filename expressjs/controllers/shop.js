@@ -129,7 +129,7 @@ exports.postOrder = (req, res, next) => {
         // On fait donc une copie de l'objet productId avec le détails de ses champs
         return {
           quantity: item.quantity,
-          products: { ...item.productId._doc }
+          product: { ...item.productId._doc }
         };
       });
       // Ensuite on créé un nouvel Order dans lequel on y passe les data du user et des produits du panier (qu'on a précédement stocké dans la variable products avec la quantity et les autres datas)
@@ -144,14 +144,6 @@ exports.postOrder = (req, res, next) => {
       // Enfin on utilise la méthode save() pour enregistrer le nouvel order
       return order.save();
     })
-
-    // **** Ancien code sans mongoose ****
-    // *
-    // req.user
-    //   // On déclenche simplement la méthode addOrder() définie dans notre model User
-    //   .addOrder()
-    // *
-
     .then(result => {
       console.log('Products added to Order');
       // On déclenche notre méthode clearCart() du modele user afin de vider le panier
@@ -164,8 +156,8 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  req.user
-    .getOrders()
+  // Ici on find() les orders qui ont le même userId que l'id du user qui fait la requête
+  Order.find({ 'user.userId': req.user._id })
     .then(orders => {
       res.render('shop/orders', {
         pageTitle: 'Your Orders',
@@ -174,6 +166,22 @@ exports.getOrders = (req, res, next) => {
         orders
       });
     })
+
+    // **** Ancien code sans mongoose ****
+    // *
+    // req.user
+    //    .getOrders()
+
+    //   .then(orders => {
+    //     res.render('shop/orders', {
+    //       pageTitle: 'Your Orders',
+    //       path: '/orders',
+    //       // ES6 SYNTAXE
+    //       orders
+    //     });
+    //   })
+    // *
+
     .catch(err => console.log(err));
 };
 
