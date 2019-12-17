@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
-const User = require('./models/user');
+// const User = require('./models/user');
 
 const app = express();
 
@@ -28,15 +28,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ici on cherche le user dans la bdd avec son id et on le stock ensuite dans l'objet request
-app.use((req, res, next) => {
-  User.findById('5df7995e660c771c1462377a')
-    .then(user => {
-      // On créé un nouveau User grâce au model auquel on passe chacune des propriétés spécifiées dans le constructor et qui existent déjà en bdd
-      req.user = new User(user.name, user.email, user.cart, user._id);
-      next();
-    })
-    .catch(err => console.log(err));
-});
+// app.use((req, res, next) => {
+//   User.findById('5df7995e660c771c1462377a')
+//     .then(user => {
+//       // On créé un nouveau User grâce au model auquel on passe chacune des propriétés spécifiées dans le constructor et qui existent déjà en bdd
+//       req.user = new User(user.name, user.email, user.cart, user._id);
+//       next();
+//     })
+//     .catch(err => console.log(err));
+// });
 
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)

@@ -10,7 +10,7 @@ const productSchema = new Schema({
   },
   price: {
     type: Number,
-    required: TextTrackCue
+    required: true
   },
   description: {
     type: String,
@@ -21,3 +21,7 @@ const productSchema = new Schema({
     required: true
   }
 });
+
+// On créé un model avec mongoose qu'on nomme ici Product
+// Le deuxieme argument représente le scehma qu'on va utiliser pour définir le modele
+module.exports = mongoose.model('Product', productSchema);

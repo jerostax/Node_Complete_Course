@@ -13,18 +13,29 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
+  // ***** Ancien Code Sans Mongoose ****
+  // *
+  // *
   // On istancie un nouveau produit (la class Product du modèle)
   // note: quand on récupère l'id du user via la l'objet request, il est automatiquement converti en string (pas besoin de convertir en ObjectId())
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    req.user._id
-  );
+  // const product = new Product(
+  //   title,
+  //   price,
+  //   description,
+  //   imageUrl,
+  //   null,
+  //   req.user._id
+  // );
+  // *
+  // *
+
+  // Avec mongoose, on map les valeurs qu'on a défini dans notre schema
+  // Le seul argument est donc cet objet javascript, ici j'utilise syntaxe ES6 mais en réalité le code =
+  // title: title, price: price... (schema: dataRequest)
+  const product = new Product({ title, price, description, imageUrl });
   product
-    // On utilise notre méthode save() du modèle qui enregistre dans la collection products
+    // MongoDB => On utilise notre méthode save() du modèle qui enregistre dans la collection products
+    // Mongoose => la méthode save() est déjà définie par mongoose
     .save()
     .then(result => {
       // console.log(result)

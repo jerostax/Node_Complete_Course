@@ -12,14 +12,14 @@ const router = express.Router();
 
 // ***** AVEC LE MVC PATTERN *****
 // GET ROUTES
-// router.get('/add-product', adminController.getAddProduct);
+router.get('/add-product', adminController.getAddProduct);
 
 // router.get('/products', adminController.getProducts);
 
 // router.get('/edit-product/:productId', adminController.getEditProduct);
 
-// // POST ROUTES
-// router.post('/add-product', adminController.postAddProduct);
+// POST ROUTES
+router.post('/add-product', adminController.postAddProduct);
 
 // router.post('/edit-product', adminController.postEditProduct);
 
