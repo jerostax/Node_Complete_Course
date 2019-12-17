@@ -1,10 +1,13 @@
+require('dotenv').config();
+const mongoURI = process.env.MONGODB_URI;
 const path = require('path');
 const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect;
+// const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
 const app = express();
@@ -44,7 +47,19 @@ app.use(shopRoutes);
 // 404 AVEC LE PATTERN MVC
 app.use(errorController.get404Page);
 
+// ***** Ancienne connexion sans mongoose ****
 // On execute la fonction mongoConnect dans lequel on lance notre app
-mongoConnect(() => {
-  app.listen(3000);
-});
+// mongoConnect(() => {
+//   app.listen(3000);
+// });
+
+// Pour se connecter avec mongoose, on passe l'url fournie par mongoDb en argument de mongoose.connect()
+// Puis dans le then() on lance notre app
+mongoose
+  .connect(mongoURI)
+  .then(result => {
+    app.listen(3000);
+  })
+  .catch(err => {
+    err;
+  });
