@@ -125,7 +125,12 @@ exports.postOrder = (req, res, next) => {
       // Rappelons nous que nous avons la champs quantity dans les produts
       // On veux donc map dessus pour retourner un objet avec le champs quantity et le champs product qui contient les datas du product
       const products = user.cart.items.map(item => {
-        return { quantity: item.quantity, products: item.productId };
+        // _doc nous permet d'accéder au document productId qui contient lui même le détails des produits (title, price...)
+        // On fait donc une copie de l'objet productId avec le détails de ses champs
+        return {
+          quantity: item.quantity,
+          products: { ...item.productId._doc }
+        };
       });
       // Ensuite on créé un nouvel Order dans lequel on y passe les data du user et des produits du panier (qu'on a précédement stocké dans la variable products avec la quantity et les autres datas)
       // Donc ici products === products : products (la variable product au dessus)
