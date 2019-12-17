@@ -13,6 +13,7 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
+  const userId = req.user._id;
   // ***** Ancien Code Sans Mongoose ****
   // *
   // *
@@ -32,7 +33,7 @@ exports.postAddProduct = (req, res, next) => {
   // Avec mongoose, on map les valeurs qu'on a défini dans notre schema
   // Le seul argument est donc cet objet javascript, ici j'utilise syntaxe ES6 mais en réalité le code =
   // title: title, price: price... (schema: dataRequest)
-  const product = new Product({ title, price, description, imageUrl });
+  const product = new Product({ title, price, description, imageUrl, userId });
   product
     // MongoDB => On utilise notre méthode save() du modèle qui enregistre dans la collection products
     // Mongoose => la méthode save() est déjà définie par mongoose
