@@ -21,7 +21,8 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  // Ici on utilise la méthode findById() définie dans le modèle Product
+  // MongoDB => Ici on utilise la méthode findById() définie dans le modèle Product
+  // Mongoose => La méthode findById() est fournie par mongoose
   Product.findById(prodId)
     .then(product => {
       res.render('shop/product-detail', {
