@@ -12,9 +12,9 @@ const adminData = require('./admin');
 const router = express.Router();
 
 // ***** AVEC LE MVC PATTERN *****
-// router.get('/', shopController.getIndex);
+router.get('/', shopController.getIndex);
 
-// router.get('/products', shopController.getProducts);
+router.get('/products', shopController.getProducts);
 
 // router.get('/products/:productId', shopController.getProduct);
 

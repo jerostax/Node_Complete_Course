@@ -1,8 +1,14 @@
 const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
+  // **** Code sans mongoose ****
+  // *
   // Ici on utilise la méthode fetchAll() définie dans le modèle Product
-  Product.fetchAll()
+  // Product.fetchAll()
+  // *
+
+  // find() nous est fourni par mongoose et nous donne tous nos produits
+  Product.find()
     .then(products => {
       res.render('shop/product-list', {
         prods: products,
@@ -28,8 +34,13 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
+  // **** Code sans mongoose ****
+  // *
   // Ici on utilise la méthode fetchAll() définie dans le modèle Product
-  Product.fetchAll()
+  // Product.fetchAll()
+  // *
+
+  Product.find()
     .then(products => {
       res.render('shop/index', {
         prods: products,
