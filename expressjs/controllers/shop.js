@@ -154,6 +154,10 @@ exports.postOrder = (req, res, next) => {
 
     .then(result => {
       console.log('Products added to Order');
+      // On déclenche notre méthode clearCart() du modele user afin de vider le panier
+      return req.user.clearCart();
+    })
+    .then(() => {
       res.redirect('/orders');
     })
     .catch(err => console.log(err));

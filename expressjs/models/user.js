@@ -78,4 +78,10 @@ userSchema.methods.removeFromCart = function(productId) {
   return this.save();
 };
 
+userSchema.methods.clearCart = function() {
+  // Ici on vide simplement le panier
+  this.cart = { items: [] };
+  return this.save();
+};
+
 module.exports = mongoose.model('User', userSchema);
