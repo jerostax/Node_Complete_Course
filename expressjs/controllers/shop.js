@@ -101,7 +101,13 @@ exports.postCartDeleteProduct = (req, res, next) => {
   // On récupère l'id du produit
   const prodId = req.body.productId;
   req.user
-    .deleteItemFromCart(prodId)
+    // **** Ancien code sans mongoose ****
+    // *
+    // Methode deleteItemFromCart définie dans notre model User
+    // .deleteItemFromCart(prodId)
+    // *
+
+    .removeFromCart(prodId)
     .then(result => {
       console.log('Product deleted from the cart');
       res.redirect('/cart');

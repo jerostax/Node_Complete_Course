@@ -66,4 +66,16 @@ userSchema.methods.addToCart = function(product) {
   // Puis on save() le panier à jour
   return this.save();
 };
+
+userSchema.methods.removeFromCart = function(productId) {
+  // filter() retourne un nouveau tableau avec les éléments correspondant au filtre (ici l'id)
+  // on retourne uniquement les produits qui matchent pas avec l'id de celui qu'on veux delete
+  const updatedCartItems = this.cart.items.filter(item => {
+    return item.productId.toString() != productId.toString();
+  });
+  // Enfin on update le panier avec le nouveau sans le produit deleted et on save() le tout
+  this.cart.items = updatedCartItems;
+  return this.save();
+};
+
 module.exports = mongoose.model('User', userSchema);
