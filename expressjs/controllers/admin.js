@@ -51,6 +51,7 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
+  // findById() est fournie dans le cadre de mongoose, sinon c'est la méthode qu'on avait défini dans le modele avec mongodb
   Product.findById(prodId)
     .then(product => {
       if (!product) {
@@ -72,17 +73,30 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDescription = req.body.description;
+
+  // **** Ancien code sans mongoose ****
+  // *
   // Ici on créé un nouveau product avec les data à jour
-  const product = new Product(
-    updatedTitle,
-    updatedPrice,
-    updatedDescription,
-    updatedImageUrl,
-    prodId
-  );
+  // const product = new Product(
+  //   updatedTitle,
+  //   updatedPrice,
+  //   updatedDescription,
+  //   updatedImageUrl,
+  //   prodId
+  // );
   // Ensuite on save() le product édité
-  product
-    .save()
+  // *
+
+  Product.findById(prodId)
+    .then(product => {
+      // Ici on update les champs avec les nouvelles valeurs
+      product.title = updatedTitle;
+      product.price = updatedPrice;
+      product.description = updatedDescription;
+      product.imageUrl = updatedImageUrl;
+      // Enfin on utilise la méthode save() de mongoose qui update notre product en bdd
+      return product.save();
+    })
     .then(result => {
       console.log('Updated Product');
       // Ici on dit de redirect uniquement quand la promesse est terminée
@@ -92,7 +106,12 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  // **** Ancien code sans mongoose ****
+  // *
+  // Product.fetchAll()
+  // *
+
+  Product.find()
     .then(products => {
       res.render('admin/products', {
         prods: products,
