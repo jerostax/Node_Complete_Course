@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
-// const User = require('./models/user');
+const User = require('./models/user');
 
 const app = express();
 
@@ -27,6 +27,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
 
+// **** Ancien code pour créer un User avec mongoDB ****
+// *
 // Ici on cherche le user dans la bdd avec son id et on le stock ensuite dans l'objet request
 // app.use((req, res, next) => {
 //   User.findById('5df7995e660c771c1462377a')
@@ -37,6 +39,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 //     })
 //     .catch(err => console.log(err));
 // });
+// *
+
+// Ici je vais enregister mon User créé avec mongoose dans l'objet request
+app.use((req, res, next) => {
+  // findById() fourni par mongoose
+  User.findById('5df8be78a5f0a72e7c2e08c2')
+    .then(user => {
+      // J'enregistre le user avec l'id plus haut dans l'objet request
+      req.user = user;
+      next();
+    })
+    .catch(err => console.log(err));
+});
 
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
@@ -58,6 +73,18 @@ app.use(errorController.get404Page);
 mongoose
   .connect(mongoURI)
   .then(result => {
+    User.findOne().then(user => {
+      if (!user) {
+        // Si il n'y a pas d'user en bdd alors on créé un User avant de lancer l'app
+        const user = new User({
+          name: 'jerem',
+          email: 'jeremy.geneste@gmail.com',
+          cart: []
+        });
+        user.save();
+      }
+    });
+
     app.listen(3000);
   })
   .catch(err => {
