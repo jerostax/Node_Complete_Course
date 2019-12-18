@@ -21,6 +21,7 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -58,6 +59,7 @@ app.use((req, res, next) => {
 app.use('/admin', adminRoutes);
 // Pareil avec nos routes "shop"
 app.use(shopRoutes);
+app.use(authRoutes);
 
 // 404 AVEC LE PATTERN MVC
 app.use(errorController.get404Page);
