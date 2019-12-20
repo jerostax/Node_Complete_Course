@@ -5,6 +5,8 @@ const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+// Ici on importe le package express pour créer des sessions
+const session = require('express-session');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -27,6 +29,12 @@ const authRoutes = require('./routes/auth');
 app.use(bodyParser.urlencoded({ extended: false }));
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
+// Middleware qui déclenche la session
+// resave : false => veux dire que la session ne sera pas enregistrée à chaque requete effectuée mais seulement si quelque chose change dans la session
+// saveUninitialized : false => assure que la session ne sera pas enregistrée s'il y a une requête ou rien n'a changé dans la session
+app.use(
+  session({ secret: 'my secret', resave: false, saveUninitialized: false })
+);
 
 // **** Ancien code pour créer un User avec mongoDB ****
 // *
