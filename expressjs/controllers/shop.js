@@ -15,7 +15,7 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: 'All Products',
         path: '/products',
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -31,7 +31,7 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: '/products',
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -50,14 +50,14 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
 };
 
 exports.getCart = (req, res, next) => {
-  req.user
+  req.session.user
     // **** Code sans mongoose ****
     // *
     // .getCart()
@@ -82,7 +82,7 @@ exports.getCart = (req, res, next) => {
         path: '/cart',
         // ES6 SYNTAXE
         products,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -93,7 +93,7 @@ exports.postCart = (req, res, next) => {
   Product.findById(prodId)
     .then(product => {
       // Ici on passe le product à la méthode addToCart du model user ce qui va l'ajouter au panier
-      return req.user.addToCart(product);
+      return req.session.user.addToCart(product);
     })
     .then(result => {
       res.redirect('/cart');
@@ -105,7 +105,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   // On récupère l'id du produit
   const prodId = req.body.productId;
-  req.user
+  req.session.user
     // **** Ancien code sans mongoose ****
     // *
     // Methode deleteItemFromCart définie dans notre model User
@@ -122,7 +122,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
   // D'abord on récupère les products dans le panier
-  req.user
+  req.session.user
     .populate('cart.items.productId')
     .execPopulate()
     .then(user => {
@@ -140,8 +140,8 @@ exports.postOrder = (req, res, next) => {
       // Donc ici products === products : products (la variable product au dessus)
       const order = new Order({
         user: {
-          name: req.user.name,
-          userId: req.user._id
+          name: req.session.user.name,
+          userId: req.session.user._id
         },
         products
       });
@@ -151,7 +151,7 @@ exports.postOrder = (req, res, next) => {
     .then(result => {
       console.log('Products added to Order');
       // On déclenche notre méthode clearCart() du modele user afin de vider le panier
-      return req.user.clearCart();
+      return req.session.user.clearCart();
     })
     .then(() => {
       res.redirect('/orders');
@@ -161,14 +161,14 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
   // Ici on find() les orders qui ont le même userId que l'id du user qui fait la requête
-  Order.find({ 'user.userId': req.user._id })
+  Order.find({ 'user.userId': req.session.user._id })
     .then(orders => {
       res.render('shop/orders', {
         pageTitle: 'Your Orders',
         path: '/orders',
         // ES6 SYNTAXE
         orders,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
 

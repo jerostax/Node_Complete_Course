@@ -66,17 +66,20 @@ app.use(
 // });
 // *
 
+// **** Ancien code pour store un user dans obj request sans session ****
+// *
 // Ici je vais enregister mon User créé avec mongoose dans l'objet request
-app.use((req, res, next) => {
-  // findById() fourni par mongoose
-  User.findById('5df8be78a5f0a72e7c2e08c2')
-    .then(user => {
-      // J'enregistre le user avec l'id plus haut dans l'objet request
-      req.user = user;
-      next();
-    })
-    .catch(err => console.log(err));
-});
+// app.use((req, res, next) => {
+//   // findById() fourni par mongoose
+//   User.findById('5df8be78a5f0a72e7c2e08c2')
+//     .then(user => {
+//       // J'enregistre le user avec l'id plus haut dans l'objet request
+//       req.user = user;
+//       next();
+//     })
+//     .catch(err => console.log(err));
+// });
+// *
 
 // On use() adminRoutes
 // On ajoute '/admin' comme filtre pour dire que seulement les url qui commencent avec /admin iront dans le fichier adminRoutes (admin.js)
@@ -89,10 +92,12 @@ app.use(authRoutes);
 app.use(errorController.get404Page);
 
 // ***** Ancienne connexion sans mongoose ****
+// *
 // On execute la fonction mongoConnect dans lequel on lance notre app
 // mongoConnect(() => {
 //   app.listen(3000);
 // });
+// *
 
 // Pour se connecter avec mongoose, on passe l'url fournie par mongoDb en argument de mongoose.connect()
 // Puis dans le then() on lance notre app
