@@ -52,6 +52,19 @@ app.use(
   })
 );
 
+// Ici on va assigner le user de la session à l'objet request pour pouvoir accéder aux méthodes de mongoose sur le user
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => console.log(err));
+});
+
 // **** Ancien code pour créer un User avec mongoDB ****
 // *
 // Ici on cherche le user dans la bdd avec son id et on le stock ensuite dans l'objet request

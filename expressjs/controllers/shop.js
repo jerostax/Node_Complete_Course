@@ -57,7 +57,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  req.session.user
+  req.user
     // **** Code sans mongoose ****
     // *
     // .getCart()
@@ -93,7 +93,7 @@ exports.postCart = (req, res, next) => {
   Product.findById(prodId)
     .then(product => {
       // Ici on passe le product à la méthode addToCart du model user ce qui va l'ajouter au panier
-      return req.session.user.addToCart(product);
+      return req.user.addToCart(product);
     })
     .then(result => {
       res.redirect('/cart');
@@ -105,7 +105,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   // On récupère l'id du produit
   const prodId = req.body.productId;
-  req.session.user
+  req.user
     // **** Ancien code sans mongoose ****
     // *
     // Methode deleteItemFromCart définie dans notre model User
@@ -122,7 +122,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
   // D'abord on récupère les products dans le panier
-  req.session.user
+  req.user
     .populate('cart.items.productId')
     .execPopulate()
     .then(user => {
@@ -140,8 +140,8 @@ exports.postOrder = (req, res, next) => {
       // Donc ici products === products : products (la variable product au dessus)
       const order = new Order({
         user: {
-          name: req.session.user.name,
-          userId: req.session.user._id
+          name: req.user.name,
+          userId: req.user._id
         },
         products
       });
@@ -151,7 +151,7 @@ exports.postOrder = (req, res, next) => {
     .then(result => {
       console.log('Products added to Order');
       // On déclenche notre méthode clearCart() du modele user afin de vider le panier
-      return req.session.user.clearCart();
+      return req.user.clearCart();
     })
     .then(() => {
       res.redirect('/orders');
@@ -161,7 +161,7 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
   // Ici on find() les orders qui ont le même userId que l'id du user qui fait la requête
-  Order.find({ 'user.userId': req.session.user._id })
+  Order.find({ 'user.userId': req.user._id })
     .then(orders => {
       res.render('shop/orders', {
         pageTitle: 'Your Orders',
