@@ -5,12 +5,23 @@ const User = require('../models/user');
 exports.getLogin = (req, res, next) => {
   // Ici on récupère la valeur true ou false de isLoggedIn dans le Cookie
   // const isLoggedIn = req.get('Cookie').split('=')[1];
-  console.log(req.session.isLoggedIn);
+  // console.log(req.session.isLoggedIn);
+
+  // Ici on store le message d'erreur dans une variable
+  let message = req.flash('error');
+  // Ensuite on check s'il y en a un ou pas
+  if (message.length > 0) {
+    // Si il y en a un on le store dans la variable message
+    message = message[0];
+  } else {
+    // Sinon il est égal à null pour ne pas render le style sur la page notemment
+    message = null;
+  }
   res.render('auth/login', {
     pageTitle: 'Login',
     path: '/login',
     // Ici on passe la clé du message qu'on veux display s'il y a eu une erreur
-    errorMessage: req.flash('error')
+    errorMessage: message
     // **** Plus besoin de cette propriété avec locals variable ****
     // isAuthenticated: false
   });
