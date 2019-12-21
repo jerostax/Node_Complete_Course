@@ -71,6 +71,15 @@ app.use((req, res, next) => {
     .catch(err => console.log(err));
 });
 
+app.use((req, res, next) => {
+  // locals nous permet de définir des variables locales qui sont passées dans les views
+  // Mtn pour toutes les nouvelles requêtes, ces 2 variables seront set sur les views qui seront render
+  // Donc le token sera partout et on saura toujours si le user est logged in ou pas
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 // **** Ancien code pour créer un User avec mongoDB ****
 // *
 // Ici on cherche le user dans la bdd avec son id et on le stock ensuite dans l'objet request
