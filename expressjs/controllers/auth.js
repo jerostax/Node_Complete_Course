@@ -22,18 +22,55 @@ exports.getSignup = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  // Ancien code pour set un cookie sans session
-  // res.setHeader('Set-Cookie', 'loggedIn=true');
-  User.findById('5df8be78a5f0a72e7c2e08c2')
+  const email = req.body.email;
+  const password = req.body.password;
+  // ES6 - filtre (email: email)
+  User.findOne({ email })
     .then(user => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      // Ici on save la session puis on redirect pour être sur que la session à été créée avant la redirection histoire de pas avoir de bugs d'affichage
-      req.session.save(err => {
-        console.log(err);
-        res.redirect('/');
-      });
+      if (!user) {
+        return res.redirect('/login');
+      }
+      // On passe le password de la request à bcrypt qui est capable de le comparer au password hashé
+      // Le résult est true ou false
+      bcrypt
+        .compare(password, user.password)
+        .then(doMatch => {
+          // Si doMatch est true, cela veux dire que les password sont les mêmes
+          if (doMatch) {
+            // On setup donc la session
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            // Plus qu'à save la session et redirect sur la homepage
+            return req.session.save(err => {
+              console.log(err);
+              res.redirect('/');
+            });
+          }
+          res.redirect('/login');
+        })
+        .catch(err => {
+          console.log(err);
+          res.redirect('/login');
+        });
     })
+
+    // Ancien code pour set un cookie sans session
+    // res.setHeader('Set-Cookie', 'loggedIn=true');
+
+    // **** Ancien code pour login user créé à la main sans authentification flow ****
+    // *
+    // User.findById('5df8be78a5f0a72e7c2e08c2')
+    //   .then(user => {
+    //     req.session.isLoggedIn = true;
+    //     req.session.user = user;
+    //     // Ici on save la session puis on redirect pour être sur que la session à été créée avant la redirection histoire de pas avoir de bugs d'affichage
+    //     req.session.save(err => {
+    //       console.log(err);
+    //       res.redirect('/');
+    //     });
+    //   })
+    // *
+
     .catch(err => console.log(err));
 };
 
