@@ -35,7 +35,31 @@ exports.postLogin = (req, res, next) => {
     .catch(err => console.log(err));
 };
 
-exports.postSignup = (req, res, next) => {};
+exports.postSignup = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+  // Ici on cherche en filtrant si un user à déjà le même email (en comparant le champs email en bdd avec notre const email de req.body.email)
+  // ES5 => email: email
+  User.findOne({ email })
+    .then(userDoc => {
+      // Si userDoc existe, cela veux dire qu'on a un user qui a déjà cet email
+      if (userDoc) {
+        return res.redirect('/signup');
+      }
+      // Ici encore j'utilise ES6 (user : user, password: password)
+      const user = new User({
+        email,
+        password,
+        cart: { items: [] }
+      });
+      return user.save();
+    })
+    .then(result => {
+      res.redirect('/login');
+    })
+    .catch(err => console.log(err));
+};
 
 exports.postLogout = (req, res, next) => {
   // Ici on "détruit" la session pour se logout

@@ -117,17 +117,20 @@ app.use(errorController.get404Page);
 mongoose
   .connect(MONGODB_URI)
   .then(result => {
-    User.findOne().then(user => {
-      if (!user) {
-        // Si il n'y a pas d'user en bdd alors on créé un User avant de lancer l'app
-        const user = new User({
-          name: 'jerem',
-          email: 'jeremy.geneste@gmail.com',
-          cart: []
-        });
-        user.save();
-      }
-    });
+    // **** Ancien code avant authentification flow pour créer un user s'il n'y en a pas ****
+    // *
+    // User.findOne().then(user => {
+    //   if (!user) {
+    //     // Si il n'y a pas d'user en bdd alors on créé un User avant de lancer l'app
+    //     const user = new User({
+    //       name: 'jerem',
+    //       email: 'jeremy.geneste@gmail.com',
+    //       cart: []
+    //     });
+    //     user.save();
+    //   }
+    // });
+    // *
 
     app.listen(3000);
   })
