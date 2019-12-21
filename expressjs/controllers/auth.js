@@ -11,6 +11,14 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
+exports.getSignup = (req, res, next) => {
+  res.render('auth/signup', {
+    path: '/signup',
+    pageTitle: 'Signup',
+    isAuthenticated: false
+  });
+};
+
 exports.postLogin = (req, res, next) => {
   // Ancien code pour set un cookie sans session
   // res.setHeader('Set-Cookie', 'loggedIn=true');
@@ -26,6 +34,8 @@ exports.postLogin = (req, res, next) => {
     })
     .catch(err => console.log(err));
 };
+
+exports.postSignup = (req, res, next) => {};
 
 exports.postLogout = (req, res, next) => {
   // Ici on "détruit" la session pour se logout
