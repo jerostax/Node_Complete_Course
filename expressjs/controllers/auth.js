@@ -51,19 +51,20 @@ exports.postSignup = (req, res, next) => {
       }
       // Ici on hash le password
       // Le deuxieme argument précise combien de tour de hashing on veux pour le password (plus y en a plus c'est secure)
-      return bcrypt.hash(password, 12);
-    })
-    .then(hashedPassword => {
-      // Ici encore j'utilise ES6 (email: email)
-      const user = new User({
-        email,
-        password: hashedPassword,
-        cart: { items: [] }
-      });
-      return user.save();
-    })
-    .then(result => {
-      res.redirect('/login');
+      return bcrypt
+        .hash(password, 12)
+        .then(hashedPassword => {
+          // Ici encore j'utilise ES6 (email: email)
+          const user = new User({
+            email,
+            password: hashedPassword,
+            cart: { items: [] }
+          });
+          return user.save();
+        })
+        .then(result => {
+          res.redirect('/login');
+        });
     })
     .catch(err => console.log(err));
 };
