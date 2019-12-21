@@ -146,7 +146,8 @@ exports.postOrder = (req, res, next) => {
       // Donc ici products === products : products (la variable product au dessus)
       const order = new Order({
         user: {
-          name: req.user.name,
+          // name: req.user.name,
+          email: req.user.email,
           userId: req.user._id
         },
         products
