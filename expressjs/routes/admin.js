@@ -3,6 +3,8 @@
 const express = require('express');
 // On importe notre products controller
 const adminController = require('../controllers/admin');
+// Ici on importe notre middleware qui va checher si le user est logged in
+const isAuth = require('../middleware/is-auth');
 
 // const rootDir = require('../util/path');
 // On utilise le Router d'express
@@ -12,18 +14,21 @@ const router = express.Router();
 
 // ***** AVEC LE MVC PATTERN *****
 // GET ROUTES
-router.get('/add-product', adminController.getAddProduct);
 
-router.get('/products', adminController.getProducts);
+// On passe le middleware isAuth en premier pour checker si le user est logged in avant de render la route
+// car les middlesware sont lus de gauche à droite
+router.get('/add-product', isAuth, adminController.getAddProduct);
 
-router.get('/edit-product/:productId', adminController.getEditProduct);
+router.get('/products', isAuth, adminController.getProducts);
+
+router.get('/edit-product/:productId', isAuth, adminController.getEditProduct);
 
 // POST ROUTES
-router.post('/add-product', adminController.postAddProduct);
+router.post('/add-product', isAuth, adminController.postAddProduct);
 
-router.post('/edit-product', adminController.postEditProduct);
+router.post('/edit-product', isAuth, adminController.postEditProduct);
 
-router.post('/delete-product', adminController.postDeleteProduct);
+router.post('/delete-product', isAuth, adminController.postDeleteProduct);
 
 // ***** SANS LE MVC PATTERN *****
 // *
