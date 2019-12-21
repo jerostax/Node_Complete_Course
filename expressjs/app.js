@@ -10,6 +10,7 @@ const session = require('express-session');
 // On importe le package pour connecter une session à mongoDB et on y passe la session en 2eme fonction
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
+const flash = require('connect-flash');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -57,6 +58,9 @@ app.use(
 );
 //Après avoir initialisé la session, on utilise notre protection csrf pour filtrer toutes les requêtes entrantes qui pourrait venir d'un autre site
 app.use(csrfProtection);
+//Après avoir initialisé la session, on utilise flash-connect pour facilement display des messages d'erreurs
+// Avec flash on va pouvoir stocker un message d'erreur dans la session de manière éphémère qu'on va pouvoir display quand c'est true
+app.use(flash());
 
 // Ici on va assigner le user de la session à l'objet request pour pouvoir accéder aux méthodes de mongoose sur le user
 app.use((req, res, next) => {

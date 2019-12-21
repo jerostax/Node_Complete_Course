@@ -8,7 +8,9 @@ exports.getLogin = (req, res, next) => {
   console.log(req.session.isLoggedIn);
   res.render('auth/login', {
     pageTitle: 'Login',
-    path: '/login'
+    path: '/login',
+    // Ici on passe la clé du message qu'on veux display s'il y a eu une erreur
+    errorMessage: req.flash('error')
     // **** Plus besoin de cette propriété avec locals variable ****
     // isAuthenticated: false
   });
@@ -30,6 +32,8 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email })
     .then(user => {
       if (!user) {
+        // Ici on utilise la méthode flash() du package connect-flash qui nous permet de store de la data dans la session avant de redirect pour ensuite display un msg d'erreur
+        req.flash('error', 'Invalid email or password.');
         return res.redirect('/login');
       }
       // On passe le password de la request à bcrypt qui est capable de le comparer au password hashé
