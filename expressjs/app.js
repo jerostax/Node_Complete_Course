@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 // On importe le package pour connecter une session à mongoDB et on y passe la session en 2eme fonction
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -23,6 +24,9 @@ const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions'
 });
+
+// On initialise notre csrf protection
+const csrfProtection = csrf();
 
 app.set('view engine', 'ejs');
 
@@ -51,6 +55,8 @@ app.use(
     store
   })
 );
+//Après avoir initialisé la session, on utilise notre protection csrf pour filtrer toutes les requêtes entrantes qui pourrait venir d'un autre site
+app.use(csrfProtection);
 
 // Ici on va assigner le user de la session à l'objet request pour pouvoir accéder aux méthodes de mongoose sur le user
 app.use((req, res, next) => {

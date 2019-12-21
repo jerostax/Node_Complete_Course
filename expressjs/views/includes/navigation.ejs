@@ -52,6 +52,11 @@
       <% } else { %>
       <li class="main-header__item">
         <form action="/logout" method="POST">
+          <!-- Ici on ajoute notre input qui va permettre de checher le csrfToken
+            Le name doit obligatoirement être _csrf
+            La value représente le token généré par le package csur (voir getIndex dans le shop controller
+        -->
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <button type="submit">Logout</button>
         </form>
       </li>
@@ -110,6 +115,7 @@
     <% } else { %>
     <li class="mobile-nav__item">
       <form action="/logout" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <button type="submit">Logout</button>
       </form>
     </li>
