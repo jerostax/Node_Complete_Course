@@ -1,13 +1,15 @@
 // On importe le core module path pour nous aider à avoir le path de la page html
-const path = require('path');
+// const path = require('path');
 
-const rootDir = require('../util/path');
+// const rootDir = require('../util/path');
 
 const express = require('express');
 
 const shopController = require('../controllers/shop');
 
-const adminData = require('./admin');
+const isAuth = require('../middleware/is-auth');
+
+// const adminData = require('./admin');
 
 const router = express.Router();
 
@@ -19,15 +21,15 @@ router.get('/products', shopController.getProducts);
 router.get('/products/:productId', shopController.getProduct);
 
 // GET card
-router.get('/cart', shopController.getCart);
+router.get('/cart', isAuth, shopController.getCart);
 // POST card
-router.post('/cart', shopController.postCart);
+router.post('/cart', isAuth, shopController.postCart);
 
-router.post('/cart-delete-item', shopController.postCartDeleteProduct);
+router.post('/cart-delete-item', isAuth, shopController.postCartDeleteProduct);
 
-router.post('/create-order', shopController.postOrder);
+router.post('/create-order', isAuth, shopController.postOrder);
 
-router.get('/orders', shopController.getOrders);
+router.get('/orders', isAuth, shopController.getOrders);
 
 // router.get('/checkout', shopController.getCheckout);
 

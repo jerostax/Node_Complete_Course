@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 // On importe le package pour connecter une session à mongoDB et on y passe la session en 2eme fonction
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
+const flash = require('connect-flash');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -23,6 +25,9 @@ const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions'
 });
+
+// On initialise notre csrf protection
+const csrfProtection = csrf();
 
 app.set('view engine', 'ejs');
 
@@ -51,6 +56,11 @@ app.use(
     store
   })
 );
+//Après avoir initialisé la session, on utilise notre protection csrf pour filtrer toutes les requêtes entrantes qui pourrait venir d'un autre site
+app.use(csrfProtection);
+//Après avoir initialisé la session, on utilise flash-connect pour facilement display des messages d'erreurs
+// Avec flash on va pouvoir stocker un message d'erreur dans la session de manière éphémère qu'on va pouvoir display quand c'est true
+app.use(flash());
 
 // Ici on va assigner le user de la session à l'objet request pour pouvoir accéder aux méthodes de mongoose sur le user
 app.use((req, res, next) => {
@@ -63,6 +73,15 @@ app.use((req, res, next) => {
       next();
     })
     .catch(err => console.log(err));
+});
+
+app.use((req, res, next) => {
+  // locals nous permet de définir des variables locales qui sont passées dans les views
+  // Mtn pour toutes les nouvelles requêtes, ces 2 variables seront set sur les views qui seront render
+  // Donc le token sera partout et on saura toujours si le user est logged in ou pas
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 // **** Ancien code pour créer un User avec mongoDB ****
@@ -117,17 +136,20 @@ app.use(errorController.get404Page);
 mongoose
   .connect(MONGODB_URI)
   .then(result => {
-    User.findOne().then(user => {
-      if (!user) {
-        // Si il n'y a pas d'user en bdd alors on créé un User avant de lancer l'app
-        const user = new User({
-          name: 'jerem',
-          email: 'jeremy.geneste@gmail.com',
-          cart: []
-        });
-        user.save();
-      }
-    });
+    // **** Ancien code avant authentification flow pour créer un user s'il n'y en a pas ****
+    // *
+    // User.findOne().then(user => {
+    //   if (!user) {
+    //     // Si il n'y a pas d'user en bdd alors on créé un User avant de lancer l'app
+    //     const user = new User({
+    //       name: 'jerem',
+    //       email: 'jeremy.geneste@gmail.com',
+    //       cart: []
+    //     });
+    //     user.save();
+    //   }
+    // });
+    // *
 
     app.listen(3000);
   })
