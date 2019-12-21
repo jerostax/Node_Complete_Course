@@ -8,16 +8,18 @@ exports.getLogin = (req, res, next) => {
   console.log(req.session.isLoggedIn);
   res.render('auth/login', {
     pageTitle: 'Login',
-    path: '/login',
-    isAuthenticated: false
+    path: '/login'
+    // **** Plus besoin de cette propriété avec locals variable ****
+    // isAuthenticated: false
   });
 };
 
 exports.getSignup = (req, res, next) => {
   res.render('auth/signup', {
     path: '/signup',
-    pageTitle: 'Signup',
-    isAuthenticated: false
+    pageTitle: 'Signup'
+    // **** Plus besoin de cette propriété avec locals variable ****
+    // isAuthenticated: false
   });
 };
 
