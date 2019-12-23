@@ -1,6 +1,21 @@
+require('dotenv').config();
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 
 const User = require('../models/user');
+
+const SENDGRID_KEY = process.env.SENDGRID_KEY;
+
+// on passe la méthode sendgridTransport() à createTransport() de nodemailer
+// cela nous permet de retourner une configuration qui permet d'utiliser sendgrid
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key: SENDGRID_KEY
+    }
+  })
+);
 
 exports.getLogin = (req, res, next) => {
   // Ici on récupère la valeur true ou false de isLoggedIn dans le Cookie
@@ -130,7 +145,16 @@ exports.postSignup = (req, res, next) => {
         })
         .then(result => {
           res.redirect('/login');
-        });
+          // Méthode du transporteur sendgrid pour envoyer un mail
+          // to => email du nouveau use, from le mail que je veux, le sujet du mail puis le contenu dans html
+          return transporter.sendMail({
+            to: email,
+            from: 'shop@node-complete.com',
+            subject: 'Signup succeeded!',
+            html: '<h1>You successfully signed up!</h1>'
+          });
+        })
+        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 };
