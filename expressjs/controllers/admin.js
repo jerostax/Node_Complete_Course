@@ -91,7 +91,7 @@ exports.postEditProduct = (req, res, next) => {
   Product.findById(prodId)
     .then(product => {
       // Si le produit n'a pas le même userId que le user logged in alors on redirige
-      if (product.userId != req.user._id) {
+      if (product.userId.toString() != req.user._id.toString()) {
         return res.redirect('/');
       }
       // Ici on update les champs avec les nouvelles valeurs
