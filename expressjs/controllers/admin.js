@@ -112,7 +112,8 @@ exports.getProducts = (req, res, next) => {
   // Product.fetchAll()
   // *
 
-  Product.find()
+  // Ici on vérifi que le produit contienne le même userId que le user qui est connecté pour que seul l'user qui l'a créé puisse le voir et ensuite le modifier/delete
+  Product.find({ userId: req.user._id })
     // populate() est une méthode de mongoose qui nous permet de dire qu'on avoir toutes les datas et pas seulement l'id (ici pour l'user)
     // Comme ça on a tout l'objet user avec son name et email
     // Une alternative existe avec select() qui permet de choisir quels champs précisement
