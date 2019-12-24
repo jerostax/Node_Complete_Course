@@ -240,8 +240,41 @@ exports.getNewPassword = (req, res, next) => {
         path: '/new-password',
         pageTitle: 'New Password',
         errorMessage: message,
-        userId: user._id.toString()
+        userId: user._id.toString(),
+        passwordToken: token
       });
+    })
+    .catch(err => console.log(err));
+};
+
+exports.postNewPassword = (req, res, next) => {
+  const newPassword = req.body.password;
+  const userId = req.body.userId;
+  const passwordToken = req.body.passwordToken;
+  let resetUser;
+
+  // Ici on cherche un user qui à le meme token, l'expiration plus haute que la date du moment et l'id égale
+  User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId
+  })
+    .then(user => {
+      // On stock le user trouvé dans la variable resetUser
+      resetUser = user;
+      // On retourne le nouveau password hashé
+      return bcrypt.hash(newPassword, 12);
+    })
+    .then(hashedPassword => {
+      // On assigne le nouveau password à la place de l'ancien
+      resetUser.password = hashedPassword;
+      // On assigne le reset token et son expiration à undifined (à ce stade plus besoin du token)
+      resetUser.resetToken = undefined;
+      resetUser.resetTokenExpiration = undefined;
+      return resetUser.save();
+    })
+    .then(result => {
+      res.redirect('/login');
     })
     .catch(err => console.log(err));
 };
