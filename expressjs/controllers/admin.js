@@ -90,18 +90,21 @@ exports.postEditProduct = (req, res, next) => {
 
   Product.findById(prodId)
     .then(product => {
+      // Si le produit n'a pas le même userId que le user logged in alors on redirige
+      if (product.userId.toString() != req.user._id.toString()) {
+        return res.redirect('/');
+      }
       // Ici on update les champs avec les nouvelles valeurs
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDescription;
       product.imageUrl = updatedImageUrl;
       // Enfin on utilise la méthode save() de mongoose qui update notre product en bdd
-      return product.save();
-    })
-    .then(result => {
-      console.log('Updated Product');
-      // Ici on dit de redirect uniquement quand la promesse est terminée
-      res.redirect('/admin/products');
+      return product.save().then(result => {
+        console.log('Updated Product');
+        // Ici on dit de redirect uniquement quand la promesse est terminée
+        res.redirect('/admin/products');
+      });
     })
     .catch(err => console.log(err));
 };
@@ -112,7 +115,8 @@ exports.getProducts = (req, res, next) => {
   // Product.fetchAll()
   // *
 
-  Product.find()
+  // Ici on vérifi que le produit contienne le même userId que le user qui est connecté pour que seul l'user qui l'a créé puisse le voir et ensuite le modifier/delete
+  Product.find({ userId: req.user._id })
     // populate() est une méthode de mongoose qui nous permet de dire qu'on avoir toutes les datas et pas seulement l'id (ici pour l'user)
     // Comme ça on a tout l'objet user avec son name et email
     // Une alternative existe avec select() qui permet de choisir quels champs précisement
@@ -141,7 +145,10 @@ exports.postDeleteProduct = (req, res, next) => {
   //*
 
   // findByIdAndRemove() est une méthode fournie par mongoose
-  Product.findByIdAndRemove(prodId)
+  // Product.findByIdAndRemove(prodId)
+
+  // On filtre avec l'id du produit et du user associé pour que ce ne soit que lui qui puisse delete
+  Product.deleteOne({ _id: prodId, userId: req.user._id })
     .then(() => {
       console.log('Product deleted');
       res.redirect('/admin/products');

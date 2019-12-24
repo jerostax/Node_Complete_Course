@@ -154,5 +154,5 @@ mongoose
     app.listen(3000);
   })
   .catch(err => {
-    err;
+    console.log(err);
   });

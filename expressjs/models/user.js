@@ -15,6 +15,10 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  // Token pour reset le password
+  resetToken: String,
+  // Date d'expiration du token pour reset le password
+  resetTokenExpiration: Date,
   // Ici on défini ce qu'il y a dans le panier, notamment le productId de type ObjectId
   // On définit aussi la référence au modele qui nous interesse, ici Product
   cart: {

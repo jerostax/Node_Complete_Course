@@ -1,4 +1,6 @@
 require('dotenv').config();
+// crypto est une librairie node qui permet de créer une valeur aléatoire et securisé
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
@@ -165,4 +167,114 @@ exports.postLogout = (req, res, next) => {
     console.log(err);
     res.redirect('/');
   });
+};
+
+exports.getReset = (req, res, next) => {
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render('auth/reset', {
+    path: '/reset',
+    pageTitle: 'Reset Password',
+    errorMessage: message
+  });
+};
+
+exports.postReset = (req, res, next) => {
+  // Ici on dit qu'on veut générer 32 bytes aléatoires
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
+      console.log(err);
+      return res.redirect('/reset');
+    }
+    // Si y a pas d'erreur on peu générer un token depuis le buffer
+    // On précise 'hex' pour spécifier que le buffer contient une valeur hexadécimal
+    // toString() a besoin de savoir que c'est hexadecimal pour convertir en ASCII caracs
+    const token = buffer.toString('hex');
+    User.findOne({ email: req.body.email })
+      .then(user => {
+        if (!user) {
+          req.flash('error', 'No account with that email found!');
+          return res.redirect('/reset');
+        }
+        // Si l'email est retrouvé alors on créé le token et son expiration
+        // 3600000 millisecondes = 1h
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then(result => {
+        res.redirect('/');
+        transporter.sendMail({
+          to: req.body.email,
+          from: 'shop@node-complete.com',
+          subject: 'Password reset',
+          // On passe le token dans l'url
+          html: `
+        <p>You requested a password reset</p>
+        <p>Click this <a href='http://localhost:3000/reset/${token}'>link</a> to set a new password.</p>
+        `
+        });
+      })
+      .catch(err => console.log(err));
+  });
+};
+
+exports.getNewPassword = (req, res, next) => {
+  // On récupère le token depuis l'url (params)
+  const token = req.params.token;
+
+  // $gt est un opérateur qui veux dire greater than (ici on check que le resetTokenExpiration soit plus grand que la date actuelle)
+  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+    .then(user => {
+      let message = req.flash('error');
+      if (message.length > 0) {
+        message = message[0];
+      } else {
+        message = null;
+      }
+      res.render('auth/new-password', {
+        path: '/new-password',
+        pageTitle: 'New Password',
+        errorMessage: message,
+        userId: user._id.toString(),
+        passwordToken: token
+      });
+    })
+    .catch(err => console.log(err));
+};
+
+exports.postNewPassword = (req, res, next) => {
+  const newPassword = req.body.password;
+  const userId = req.body.userId;
+  const passwordToken = req.body.passwordToken;
+  let resetUser;
+
+  // Ici on cherche un user qui à le meme token, l'expiration plus haute que la date du moment et l'id égale
+  User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId
+  })
+    .then(user => {
+      // On stock le user trouvé dans la variable resetUser
+      resetUser = user;
+      // On retourne le nouveau password hashé
+      return bcrypt.hash(newPassword, 12);
+    })
+    .then(hashedPassword => {
+      // On assigne le nouveau password à la place de l'ancien
+      resetUser.password = hashedPassword;
+      // On assigne le reset token et son expiration à undifined (à ce stade plus besoin du token)
+      resetUser.resetToken = undefined;
+      resetUser.resetTokenExpiration = undefined;
+      return resetUser.save();
+    })
+    .then(result => {
+      res.redirect('/login');
+    })
+    .catch(err => console.log(err));
 };
