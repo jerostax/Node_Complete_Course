@@ -1,4 +1,6 @@
 const express = require('express');
+// On importe le sous package check du package express-validator
+const { check } = require('express-validator/check');
 
 const authController = require('../controllers/auth');
 const router = express.Router();
@@ -11,7 +13,8 @@ router.post('/login', authController.postLogin);
 
 router.post('/logout', authController.postLogout);
 
-router.post('/signup', authController.postSignup);
+// On ajoute un middleware pour check/validation
+router.post('/signup', check('email').isEmail(), authController.postSignup);
 
 router.get('/reset', authController.getReset);
 
