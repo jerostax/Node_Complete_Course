@@ -14,7 +14,13 @@ router.post('/login', authController.postLogin);
 router.post('/logout', authController.postLogout);
 
 // On ajoute un middleware pour check/validation
-router.post('/signup', check('email').isEmail(), authController.postSignup);
+router.post(
+  '/signup',
+  check('email')
+    .isEmail()
+    .withMessage('Please enter a valid email.'),
+  authController.postSignup
+);
 
 router.get('/reset', authController.getReset);
 
