@@ -3,6 +3,8 @@ const express = require('express');
 const { check, body } = require('express-validator/check');
 
 const authController = require('../controllers/auth');
+const User = require('../models/user');
+
 const router = express.Router();
 
 router.get('/login', authController.getLogin);
@@ -20,16 +22,27 @@ router.post(
     check('email')
       // isEmail validator check si c'est bien une adresse email
       .isEmail()
-      .withMessage('Please enter a valid email.'),
-    // CUSTOM VALIDATOR
-    // .custom((value, { req }) => {
-    //   if (value === 'test@test.com') {
-    //     throw new Error('This email address is forbidden.');
-    //   } else {
-    //     return true;
-    //   }
-    // }),
+      .withMessage('Please enter a valid email.')
+      // CUSTOM VALIDATOR
+      // .custom((value, { req }) => {
+      //   if (value === 'test@test.com') {
+      //     throw new Error('This email address is forbidden.');
+      //   } else {
+      //     return true;
+      //   }
+      // }),
 
+      // Ici on retourne une promesse, si elle se résolue sans erreur alors la validation marche
+      // Si elle se résolue avec un "rejet" alors elle passe reject() comme une new Error()
+      .custom((value, { req }) => {
+        return User.findOne({ email: value }).then(userDoc => {
+          if (userDoc) {
+            return Promise.reject(
+              'Email already exists, please pick a different one.'
+            );
+          }
+        });
+      }),
     // Alternative à check(), ici on va check le password via le body
     // On peut passer le msg d'erreur en 2eme argument (marche avec check() également)
     body(

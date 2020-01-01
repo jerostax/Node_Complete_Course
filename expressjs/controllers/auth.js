@@ -120,7 +120,7 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  const confirmPassword = req.body.confirmPassword;
+  // const confirmPassword = req.body.confirmPassword;
   // Ici on récupère les erreurs grâce au middleware check() passé dans la route postSignup
   const errors = validationResult(req);
   // Si on a une erreur
@@ -132,44 +132,49 @@ exports.postSignup = (req, res, next) => {
       errorMessage: errors.array()[0].msg
     });
   }
+
+  // **** ANCIEN CODE POUR CHECK SI EMAIL EXISTE DEJA (ON CHECK DANS AUTH ROUTE MAINTENANT) ****
   // Ici on cherche en filtrant si un user à déjà le même email (en comparant le champs email en bdd avec notre const email de req.body.email)
   // ES5 => email: email
-  User.findOne({ email })
-    .then(userDoc => {
-      // Si userDoc existe, cela veux dire qu'on a un user qui a déjà cet email
-      if (userDoc) {
-        req.flash(
-          'error',
-          'Email exists already, please pick a different one.'
-        );
-        return res.redirect('/signup');
-      }
-      // Ici on hash le password
-      // Le deuxieme argument précise combien de tour de hashing on veux pour le password (plus y en a plus c'est secure)
-      return bcrypt
-        .hash(password, 12)
-        .then(hashedPassword => {
-          // Ici encore j'utilise ES6 (email: email)
-          const user = new User({
-            email,
-            password: hashedPassword,
-            cart: { items: [] }
-          });
-          return user.save();
-        })
-        .then(result => {
-          res.redirect('/login');
-          // Méthode du transporteur sendgrid pour envoyer un mail
-          // to => email du nouveau use, from le mail que je veux, le sujet du mail puis le contenu dans html
-          return transporter.sendMail({
-            to: email,
-            from: 'shop@node-complete.com',
-            subject: 'Signup succeeded!',
-            html: '<h1>You successfully signed up!</h1>'
-          });
-        })
-        .catch(err => console.log(err));
+  // User.findOne({ email })
+  //   .then(userDoc => {
+  //     // Si userDoc existe, cela veux dire qu'on a un user qui a déjà cet email
+  //     if (userDoc) {
+  //       req.flash(
+  //         'error',
+  //         'Email exists already, please pick a different one.'
+  //       );
+  //       return res.redirect('/signup');
+  //     }
+  // *
+  // *
+
+  // Ici on hash le password
+  // Le deuxieme argument précise combien de tour de hashing on veux pour le password (plus y en a plus c'est secure)
+  bcrypt
+    .hash(password, 12)
+    .then(hashedPassword => {
+      // Ici encore j'utilise ES6 (email: email)
+      const user = new User({
+        email,
+        password: hashedPassword,
+        cart: { items: [] }
+      });
+      return user.save();
     })
+    .then(result => {
+      res.redirect('/login');
+      // Méthode du transporteur sendgrid pour envoyer un mail
+      // to => email du nouveau use, from le mail que je veux, le sujet du mail puis le contenu dans html
+      return transporter.sendMail({
+        to: email,
+        from: 'shop@node-complete.com',
+        subject: 'Signup succeeded!',
+        html: '<h1>You successfully signed up!</h1>'
+      });
+    })
+    .catch(err => console.log(err))
+
     .catch(err => console.log(err));
 };
 
