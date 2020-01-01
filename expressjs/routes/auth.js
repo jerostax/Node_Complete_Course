@@ -17,8 +17,17 @@ router.post('/logout', authController.postLogout);
 router.post(
   '/signup',
   check('email')
+    // isEmail validator check si c'est bien une adresse email
     .isEmail()
-    .withMessage('Please enter a valid email.'),
+    .withMessage('Please enter a valid email.')
+    // CUSTOM VALIDATOR 
+    // .custom((value, { req }) => {
+    //   if (value === 'test@test.com') {
+    //     throw new Error('This email address is forbidden.');
+    //   } else {
+    //     return true;
+    //   }
+    // }),
   authController.postSignup
 );
 
