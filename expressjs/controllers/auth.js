@@ -39,7 +39,9 @@ exports.getLogin = (req, res, next) => {
     pageTitle: 'Login',
     path: '/login',
     // Ici on passe la clé du message qu'on veux display s'il y a eu une erreur
-    errorMessage: message
+    errorMessage: message,
+    oldInput: { email: '', password: '' },
+    validationErrors: []
     // **** Plus besoin de cette propriété avec locals variable ****
     // isAuthenticated: false
   });
@@ -73,7 +75,9 @@ exports.postLogin = (req, res, next) => {
     return res.status(422).render('auth/login', {
       path: '/login',
       pageTitle: 'Login',
-      errorMessage: errors.array()[0].msg
+      errorMessage: errors.array()[0].msg,
+      oldInput: { email, password },
+      validationErrors: errors.array()
     });
   }
 
@@ -81,9 +85,15 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email })
     .then(user => {
       if (!user) {
-        // Ici on utilise la méthode flash() du package connect-flash qui nous permet de store de la data dans la session avant de redirect pour ensuite display un msg d'erreur
-        req.flash('error', 'Invalid email or password.');
-        return res.redirect('/login');
+        // // Ici on utilise la méthode flash() du package connect-flash qui nous permet de store de la data dans la session avant de redirect pour ensuite display un msg d'erreur
+        // req.flash('error', 'Invalid email or password.');
+        return res.status(422).render('auth/login', {
+          path: '/login',
+          pageTitle: 'Login',
+          errorMessage: 'Invalid email or password.',
+          oldInput: { email, password },
+          validationErrors: []
+        });
       }
       // On passe le password de la request à bcrypt qui est capable de le comparer au password hashé
       // Le résult est true ou false
@@ -101,8 +111,15 @@ exports.postLogin = (req, res, next) => {
               res.redirect('/');
             });
           }
-          req.flash('error', 'Invalid email or password.');
-          res.redirect('/login');
+          // req.flash('error', 'Invalid email or password.');
+          // res.redirect('/login');
+          return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: 'Invalid email or password.',
+            oldInput: { email, password },
+            validationErrors: []
+          });
         })
         .catch(err => {
           console.log(err);
