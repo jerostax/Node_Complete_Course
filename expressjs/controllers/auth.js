@@ -55,7 +55,8 @@ exports.getSignup = (req, res, next) => {
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    errorMessage: message
+    errorMessage: message,
+    oldInput: { email: '', password: '', confirmPassword: '' }
     // **** Plus besoin de cette propriété avec locals variable ****
     // isAuthenticated: false
   });
@@ -131,7 +132,7 @@ exports.postLogin = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  // const confirmPassword = req.body.confirmPassword;
+  const confirmPassword = req.body.confirmPassword;
   // Ici on récupère les erreurs grâce au middleware check() passé dans la route postSignup
   const errors = validationResult(req);
   // Si on a une erreur
@@ -140,7 +141,9 @@ exports.postSignup = (req, res, next) => {
     return res.status(422).render('auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
-      errorMessage: errors.array()[0].msg
+      errorMessage: errors.array()[0].msg,
+      // ES6 => email: email, password: password... (on store les valeurs de req.body.email et password)
+      oldInput: { email, password, confirmPassword }
     });
   }
 
