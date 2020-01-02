@@ -56,7 +56,8 @@ exports.getSignup = (req, res, next) => {
     path: '/signup',
     pageTitle: 'Signup',
     errorMessage: message,
-    oldInput: { email: '', password: '', confirmPassword: '' }
+    oldInput: { email: '', password: '', confirmPassword: '' },
+    validationErrors: []
     // **** Plus besoin de cette propriété avec locals variable ****
     // isAuthenticated: false
   });
@@ -143,7 +144,8 @@ exports.postSignup = (req, res, next) => {
       pageTitle: 'Signup',
       errorMessage: errors.array()[0].msg,
       // ES6 => email: email, password: password... (on store les valeurs de req.body.email et password)
-      oldInput: { email, password, confirmPassword }
+      oldInput: { email, password, confirmPassword },
+      validationErrors: errors.array()
     });
   }
 
