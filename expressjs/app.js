@@ -126,9 +126,14 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
-app.use(errorController.get500Page);
+app.get('/500', errorController.get500Page);
 // 404 AVEC LE PATTERN MVC
 app.use(errorController.get404Page);
+
+// Express passe dans ce middleware quand on retourne next(error) (voir controllers en cas d'erreur)
+app.use((error, req, res, next) => {
+  res.redirect('/500');
+});
 
 // ***** Ancienne connexion sans mongoose ****
 // *

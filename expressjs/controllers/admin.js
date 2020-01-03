@@ -61,7 +61,12 @@ exports.postAddProduct = (req, res, next) => {
       console.log('Product Created');
       res.redirect('/admin/products');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      // Ici on créé une nouvelle erreur avec le status 500 (server error)
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -86,7 +91,12 @@ exports.getEditProduct = (req, res, next) => {
         validationErrors: []
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      // Ici on créé une nouvelle erreur avec le status 500 (server error)
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postEditProduct = (req, res, next) => {
