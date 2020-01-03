@@ -69,10 +69,16 @@ app.use((req, res, next) => {
   }
   User.findById(req.session.user._id)
     .then(user => {
+      if (!user) {
+        // Ici on gère le cas ou le user n'existe plus dans la bdd (il existe dans la session mais il a été supprimé dans la bdd par exemple)
+        return next();
+      }
       req.user = user;
       next();
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      throw new Error(err);
+    });
 });
 
 app.use((req, res, next) => {
