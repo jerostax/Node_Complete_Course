@@ -156,7 +156,12 @@ exports.postEditProduct = (req, res, next) => {
         res.redirect('/admin/products');
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      // Ici on créé une nouvelle erreur avec le status 500 (server error)
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProducts = (req, res, next) => {
@@ -182,7 +187,10 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      // Ici on créé une nouvelle erreur avec le status 500 (server error)
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -203,5 +211,10 @@ exports.postDeleteProduct = (req, res, next) => {
       console.log('Product deleted');
       res.redirect('/admin/products');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      // Ici on créé une nouvelle erreur avec le status 500 (server error)
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
