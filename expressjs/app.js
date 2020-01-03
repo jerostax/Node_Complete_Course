@@ -126,6 +126,7 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.use(errorController.get500Page);
 // 404 AVEC LE PATTERN MVC
 app.use(errorController.get404Page);
 
