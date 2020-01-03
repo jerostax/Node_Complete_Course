@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
+const { validationResult } = require('express-validator/check');
 
 const User = require('../models/user');
 
@@ -38,7 +39,9 @@ exports.getLogin = (req, res, next) => {
     pageTitle: 'Login',
     path: '/login',
     // Ici on passe la clé du message qu'on veux display s'il y a eu une erreur
-    errorMessage: message
+    errorMessage: message,
+    oldInput: { email: '', password: '' },
+    validationErrors: []
     // **** Plus besoin de cette propriété avec locals variable ****
     // isAuthenticated: false
   });
@@ -54,7 +57,9 @@ exports.getSignup = (req, res, next) => {
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    errorMessage: message
+    errorMessage: message,
+    oldInput: { email: '', password: '', confirmPassword: '' },
+    validationErrors: []
     // **** Plus besoin de cette propriété avec locals variable ****
     // isAuthenticated: false
   });
@@ -63,13 +68,32 @@ exports.getSignup = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  const errors = validationResult(req);
+
+  // Si on a une erreur
+  if (!errors.isEmpty()) {
+    return res.status(422).render('auth/login', {
+      path: '/login',
+      pageTitle: 'Login',
+      errorMessage: errors.array()[0].msg,
+      oldInput: { email, password },
+      validationErrors: errors.array()
+    });
+  }
+
   // ES6 - filtre (email: email)
   User.findOne({ email })
     .then(user => {
       if (!user) {
-        // Ici on utilise la méthode flash() du package connect-flash qui nous permet de store de la data dans la session avant de redirect pour ensuite display un msg d'erreur
-        req.flash('error', 'Invalid email or password.');
-        return res.redirect('/login');
+        // // Ici on utilise la méthode flash() du package connect-flash qui nous permet de store de la data dans la session avant de redirect pour ensuite display un msg d'erreur
+        // req.flash('error', 'Invalid email or password.');
+        return res.status(422).render('auth/login', {
+          path: '/login',
+          pageTitle: 'Login',
+          errorMessage: 'Invalid email or password.',
+          oldInput: { email, password },
+          validationErrors: []
+        });
       }
       // On passe le password de la request à bcrypt qui est capable de le comparer au password hashé
       // Le résult est true ou false
@@ -87,8 +111,15 @@ exports.postLogin = (req, res, next) => {
               res.redirect('/');
             });
           }
-          req.flash('error', 'Invalid email or password.');
-          res.redirect('/login');
+          // req.flash('error', 'Invalid email or password.');
+          // res.redirect('/login');
+          return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: 'Invalid email or password.',
+            oldInput: { email, password },
+            validationErrors: []
+          });
         })
         .catch(err => {
           console.log(err);
@@ -120,44 +151,63 @@ exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
+  // Ici on récupère les erreurs grâce au middleware check() passé dans la route postSignup
+  const errors = validationResult(req);
+  // Si on a une erreur
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render('auth/signup', {
+      path: '/signup',
+      pageTitle: 'Signup',
+      errorMessage: errors.array()[0].msg,
+      // ES6 => email: email, password: password... (on store les valeurs de req.body.email et password)
+      oldInput: { email, password, confirmPassword },
+      validationErrors: errors.array()
+    });
+  }
+
+  // **** ANCIEN CODE POUR CHECK SI EMAIL EXISTE DEJA (ON CHECK DANS AUTH ROUTE MAINTENANT) ****
   // Ici on cherche en filtrant si un user à déjà le même email (en comparant le champs email en bdd avec notre const email de req.body.email)
   // ES5 => email: email
-  User.findOne({ email })
-    .then(userDoc => {
-      // Si userDoc existe, cela veux dire qu'on a un user qui a déjà cet email
-      if (userDoc) {
-        req.flash(
-          'error',
-          'Email exists already, please pick a different one.'
-        );
-        return res.redirect('/signup');
-      }
-      // Ici on hash le password
-      // Le deuxieme argument précise combien de tour de hashing on veux pour le password (plus y en a plus c'est secure)
-      return bcrypt
-        .hash(password, 12)
-        .then(hashedPassword => {
-          // Ici encore j'utilise ES6 (email: email)
-          const user = new User({
-            email,
-            password: hashedPassword,
-            cart: { items: [] }
-          });
-          return user.save();
-        })
-        .then(result => {
-          res.redirect('/login');
-          // Méthode du transporteur sendgrid pour envoyer un mail
-          // to => email du nouveau use, from le mail que je veux, le sujet du mail puis le contenu dans html
-          return transporter.sendMail({
-            to: email,
-            from: 'shop@node-complete.com',
-            subject: 'Signup succeeded!',
-            html: '<h1>You successfully signed up!</h1>'
-          });
-        })
-        .catch(err => console.log(err));
+  // User.findOne({ email })
+  //   .then(userDoc => {
+  //     // Si userDoc existe, cela veux dire qu'on a un user qui a déjà cet email
+  //     if (userDoc) {
+  //       req.flash(
+  //         'error',
+  //         'Email exists already, please pick a different one.'
+  //       );
+  //       return res.redirect('/signup');
+  //     }
+  // *
+  // *
+
+  // Ici on hash le password
+  // Le deuxieme argument précise combien de tour de hashing on veux pour le password (plus y en a plus c'est secure)
+  bcrypt
+    .hash(password, 12)
+    .then(hashedPassword => {
+      // Ici encore j'utilise ES6 (email: email)
+      const user = new User({
+        email,
+        password: hashedPassword,
+        cart: { items: [] }
+      });
+      return user.save();
     })
+    .then(result => {
+      res.redirect('/login');
+      // Méthode du transporteur sendgrid pour envoyer un mail
+      // to => email du nouveau use, from le mail que je veux, le sujet du mail puis le contenu dans html
+      return transporter.sendMail({
+        to: email,
+        from: 'shop@node-complete.com',
+        subject: 'Signup succeeded!',
+        html: '<h1>You successfully signed up!</h1>'
+      });
+    })
+    .catch(err => console.log(err))
+
     .catch(err => console.log(err));
 };
 
