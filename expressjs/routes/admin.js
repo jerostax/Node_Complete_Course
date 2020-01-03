@@ -1,6 +1,8 @@
 // const path = require('path');
 
 const express = require('express');
+
+const { body } = require('express-validator/check');
 // On importe notre products controller
 const adminController = require('../controllers/admin');
 // Ici on importe notre middleware qui va checher si le user est logged in
@@ -24,9 +26,40 @@ router.get('/products', isAuth, adminController.getProducts);
 router.get('/edit-product/:productId', isAuth, adminController.getEditProduct);
 
 // POST ROUTES
-router.post('/add-product', isAuth, adminController.postAddProduct);
+router.post(
+  '/add-product',
+  [
+    body('title')
+      .isString()
+      .isLength({ min: 3 })
+      .trim(),
+    body('imageUrl').isURL(),
+    body('price').isFloat(),
+    body('description')
+      .isLength({ min: 5, max: 400 })
+      .trim()
+  ],
 
-router.post('/edit-product', isAuth, adminController.postEditProduct);
+  isAuth,
+  adminController.postAddProduct
+);
+
+router.post(
+  '/edit-product',
+  [
+    body('title')
+      .isString()
+      .isLength({ min: 3 })
+      .trim(),
+    body('imageUrl').isURL(),
+    body('price').isFloat(),
+    body('description')
+      .isLength({ min: 5, max: 400 })
+      .trim()
+  ],
+  isAuth,
+  adminController.postEditProduct
+);
 
 router.post('/delete-product', isAuth, adminController.postDeleteProduct);
 
