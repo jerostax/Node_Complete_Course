@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const fileHelper = require('../util/file');
 
 const { validationResult } = require('express-validator/check');
 
@@ -167,6 +168,9 @@ exports.postEditProduct = (req, res, next) => {
       // Si on a une nouvelle image (pas undefined) alors on va la store
       // Sinon on fait rien donc on garder l'ancienne image déjà store
       if (image) {
+        // On supprimé l'ancien imageUrl (avec notre fonction deleteFile de util/file)
+        fileHelper.deleteFile(product.imageUrl);
+        // Puis on créer une nouvelle imageUrl avec la nouvelle image upload
         product.imageUrl = image.path;
       }
 
@@ -217,17 +221,16 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  // **** Ancien code sans mongoose ****
-  // *
-  // deleteById() est une méthode qu'on a définie dans notre modèle Product avec mongoDB
-  // Product.deleteById(prodId)
-  //*
-
-  // findByIdAndRemove() est une méthode fournie par mongoose
-  // Product.findByIdAndRemove(prodId)
-
-  // On filtre avec l'id du produit et du user associé pour que ce ne soit que lui qui puisse delete
-  Product.deleteOne({ _id: prodId, userId: req.user._id })
+  // Ici on delete l'image associée au produit
+  Product.findById(prodId)
+    .then(product => {
+      if (!product) {
+        return next(new Error('Product not found.'));
+      }
+      fileHelper.deleteFile(product.imageUrl);
+      // On filtre avec l'id du produit et du user associé pour que ce ne soit que lui qui puisse delete
+      return Product.deleteOne({ _id: prodId, userId: req.user._id });
+    })
     .then(() => {
       console.log('Product deleted');
       res.redirect('/admin/products');
@@ -238,4 +241,13 @@ exports.postDeleteProduct = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     });
+
+  // **** Ancien code sans mongoose ****
+  // *
+  // deleteById() est une méthode qu'on a définie dans notre modèle Product avec mongoDB
+  // Product.deleteById(prodId)
+  //*
+
+  // findByIdAndRemove() est une méthode fournie par mongoose
+  // Product.findByIdAndRemove(prodId)
 };
