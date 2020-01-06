@@ -41,9 +41,22 @@ const fileStorage = multer.diskStorage({
     // new Date().toISOString() nous permet d'avoir la date du moment et la passer dans le nom du file
     // file.originalname récupère le nom original du file
     // on concatene les 2 pour être sur de pas avoir 2 files du même nom
-    callback(null, new Date().toISOString() + '-' + file.originalname);
+    callback(null, new Date().getTime() + '-' + file.originalname);
   }
 });
+
+// Ici on rajoute un filtre pour accépter que les files valid (ici jpg, jpeg et png)
+const fileFilter = (req, file, callback) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
 
 app.set('view engine', 'ejs');
 
@@ -59,8 +72,10 @@ const authRoutes = require('./routes/auth');
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
 // Middleware pour parse file data (ici single() = un seul file)
-// dest: images dit ou store le file upload
-app.use(multer({ storage: fileStorage }).single('image'));
+// storage contient la config pour store le file et le name
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+);
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
 // Middleware qui déclenche la session
