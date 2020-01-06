@@ -15,8 +15,16 @@ h1 {
   position: absolute;
   top: 30%;
   font-size: 6rem;
-  color: #505c9c;
   -webkit-text-fill-color: white;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black;
+}
+p {
+  position: absolute;
+  top: 50%;
+  font-size: 2rem;
+  font-weight: bold;
+  -webkit-text-fill-color: red;
   -webkit-text-stroke-width: 2px;
   -webkit-text-stroke-color: black;
 }

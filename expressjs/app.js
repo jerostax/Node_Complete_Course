@@ -62,19 +62,6 @@ app.use(csrfProtection);
 // Avec flash on va pouvoir stocker un message d'erreur dans la session de manière éphémère qu'on va pouvoir display quand c'est true
 app.use(flash());
 
-// Ici on va assigner le user de la session à l'objet request pour pouvoir accéder aux méthodes de mongoose sur le user
-app.use((req, res, next) => {
-  if (!req.session.user) {
-    return next();
-  }
-  User.findById(req.session.user._id)
-    .then(user => {
-      req.user = user;
-      next();
-    })
-    .catch(err => console.log(err));
-});
-
 app.use((req, res, next) => {
   // locals nous permet de définir des variables locales qui sont passées dans les views
   // Mtn pour toutes les nouvelles requêtes, ces 2 variables seront set sur les views qui seront render
@@ -82,6 +69,26 @@ app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   res.locals.csrfToken = req.csrfToken();
   next();
+});
+
+// Ici on va assigner le user de la session à l'objet request pour pouvoir accéder aux méthodes de mongoose sur le user
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
+    .then(user => {
+      // throw new Error('Dummy');
+      if (!user) {
+        // Ici on gère le cas ou le user n'existe plus dans la bdd (il existe dans la session mais il a été supprimé dans la bdd par exemple)
+        return next();
+      }
+      req.user = user;
+      next();
+    })
+    .catch(err => {
+      next(new Error(err));
+    });
 });
 
 // **** Ancien code pour créer un User avec mongoDB ****
@@ -120,8 +127,18 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.get('/500', errorController.get500Page);
 // 404 AVEC LE PATTERN MVC
 app.use(errorController.get404Page);
+
+// Express passe dans ce middleware quand on retourne next(error) (voir controllers en cas d'erreur)
+app.use((error, req, res, next) => {
+  res.status(500).render('500', {
+    pageTitle: 'Error!',
+    path: '/500',
+    isAuthenticated: req.session.isLoggedIn
+  });
+});
 
 // ***** Ancienne connexion sans mongoose ****
 // *
