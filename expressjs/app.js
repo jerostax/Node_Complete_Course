@@ -11,6 +11,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -42,6 +43,9 @@ const authRoutes = require('./routes/auth');
 
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
+// Middleware pour parse file data (ici single() = un seul file)
+// dest: images dit ou store le file upload
+app.use(multer({ dest: 'images' }).single('image'));
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
 // Middleware qui déclenche la session

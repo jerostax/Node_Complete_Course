@@ -16,10 +16,11 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
-  const image = req.body.image;
+  const image = req.file;
   const description = req.body.description;
   const price = req.body.price;
   const userId = req.user._id;
+  console.log(image);
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
