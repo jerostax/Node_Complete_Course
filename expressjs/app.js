@@ -30,6 +30,21 @@ const store = new MongoDBStore({
 // On initialise notre csrf protection
 const csrfProtection = csrf();
 
+// diskstorage nous permet de configurer le file upload
+const fileStorage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    // le premier argument null informe multer que c'est bon il faut pas store le file (sinon ca peut être un msg d'erreur)
+    // le deuxieme argument est l'endroit ou l'on veux store le file
+    callback(null, 'images');
+  },
+  filename: (req, file, callback) => {
+    // new Date().toISOString() nous permet d'avoir la date du moment et la passer dans le nom du file
+    // file.originalname récupère le nom original du file
+    // on concatene les 2 pour être sur de pas avoir 2 files du même nom
+    callback(null, new Date().toISOString() + '-' + file.originalname);
+  }
+});
+
 app.set('view engine', 'ejs');
 
 // on "set" une configuration globale pour les templates engines
@@ -45,7 +60,7 @@ const authRoutes = require('./routes/auth');
 app.use(bodyParser.urlencoded({ extended: false }));
 // Middleware pour parse file data (ici single() = un seul file)
 // dest: images dit ou store le file upload
-app.use(multer({ dest: 'images' }).single('image'));
+app.use(multer({ storage: fileStorage }).single('image'));
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
 // Middleware qui déclenche la session
