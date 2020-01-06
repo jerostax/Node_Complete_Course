@@ -245,18 +245,32 @@ exports.getCheckout = (req, res, next) => {
 
 exports.getInvoice = (req, res, next) => {
   const orderId = req.params.orderId;
-  const invoiceName = 'invoice-' + orderId + '.pdf';
-  const invoicePath = path.join('data', 'invoices', invoiceName);
-  // Ici on va lire l'invoice grâce au core module filesystem auquel on passe le path
-  fs.readFile(invoicePath, (err, data) => {
-    if (err) {
+  Order.findById(orderId)
+    .then(order => {
+      if (!order) {
+        return next(new Error('No order found.'));
+      }
+      // Ici on check si le userId de l'order n'est pas égal à l'id du user logged in
+      if (order.user.userId.toString() !== req.user._id.toString()) {
+        return next(new Error('Unauthorized'));
+      }
+      // Si on passe les 2 if alors on va lire le fichier et l'ouput
+      const invoiceName = 'invoice-' + orderId + '.pdf';
+      const invoicePath = path.join('data', 'invoices', invoiceName);
+      // Ici on va lire l'invoice grâce au core module filesystem auquel on passe le path
+      fs.readFile(invoicePath, (err, data) => {
+        if (err) {
+          return next(err);
+        }
+        // On renseigne au navigateur le content type
+        res.setHeader('Content-type', 'application/pdf');
+        // Ici on configure le nom du file pour le navigateur
+        res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+        // Si y a pas d'erreur on renvoi la data
+        res.send(data);
+      });
+    })
+    .catch(err => {
       return next(err);
-    }
-    // On renseigne au navigateur le content type
-    res.setHeader('Content-type', 'application/pdf');
-    // Ici on configure le nom du file pour le navigateur
-    res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
-    // Si y a pas d'erreur on renvoi la data
-    res.send(data);
-  });
+    });
 };
