@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -258,6 +260,16 @@ exports.getInvoice = (req, res, next) => {
       const invoiceName = 'invoice-' + orderId + '.pdf';
       const invoicePath = path.join('data', 'invoices', invoiceName);
 
+      const pdfDoc = new PDFDocument();
+      res.setHeader('Content-type', 'application/pdf');
+      res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+      // Ici on écrits/créé un stream pour le nouveau pdf et on lui met le path où on veux le store
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
+
+      pdfDoc.text('Hellow World!');
+
+      pdfDoc.end();
       // **** Code avant de stream la réponse ****
       // *
       // Ici on va lire l'invoice grâce au core module filesystem auquel on passe le path
@@ -274,11 +286,14 @@ exports.getInvoice = (req, res, next) => {
       // });
       // *
 
+      // **** Code avant de write/créer un pdf ****
+      // *
       // Maintenant on va lire les fichier en créant un stream pour éviter de tout lire d'un coup si fichier trop lourd
-      const file = fs.createReadStream(invoicePath);
-      res.setHeader('Content-type', 'application/pdf');
-      res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
-      file.pipe(res);
+      //   const file = fs.createReadStream(invoicePath);
+      //   res.setHeader('Content-type', 'application/pdf');
+      //   res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+      //   file.pipe(res);
+      // *
     })
 
     .catch(err => {
