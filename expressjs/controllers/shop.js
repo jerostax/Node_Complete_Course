@@ -252,6 +252,10 @@ exports.getInvoice = (req, res, next) => {
     if (err) {
       return next(err);
     }
+    // On renseigne au navigateur le content type
+    res.setHeader('Content-type', 'application/pdf');
+    // Ici on configure le nom du file pour le navigateur
+    res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
     // Si y a pas d'erreur on renvoi la data
     res.send(data);
   });
