@@ -11,6 +11,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -29,6 +30,34 @@ const store = new MongoDBStore({
 // On initialise notre csrf protection
 const csrfProtection = csrf();
 
+// diskstorage nous permet de configurer le file upload
+const fileStorage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    // le premier argument null informe multer que c'est bon il faut pas store le file (sinon ca peut être un msg d'erreur)
+    // le deuxieme argument est l'endroit ou l'on veux store le file
+    callback(null, 'images');
+  },
+  filename: (req, file, callback) => {
+    // new Date().toISOString() nous permet d'avoir la date du moment et la passer dans le nom du file
+    // file.originalname récupère le nom original du file
+    // on concatene les 2 pour être sur de pas avoir 2 files du même nom
+    callback(null, new Date().getTime() + '-' + file.originalname);
+  }
+});
+
+// Ici on rajoute un filtre pour accépter que les files valid (ici jpg, jpeg et png)
+const fileFilter = (req, file, callback) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
+
 app.set('view engine', 'ejs');
 
 // on "set" une configuration globale pour les templates engines
@@ -42,8 +71,14 @@ const authRoutes = require('./routes/auth');
 
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
+// Middleware pour parse file data (ici single() = un seul file)
+// storage contient la config pour store le file et le name
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+);
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 // Middleware qui déclenche la session
 // resave : false => veux dire que la session ne sera pas enregistrée à chaque requete effectuée mais seulement si quelque chose change dans la session
 // saveUninitialized : false => assure que la session ne sera pas enregistrée s'il y a une requête ou rien n'a changé dans la session

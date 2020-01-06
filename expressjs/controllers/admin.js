@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const fileHelper = require('../util/file');
 
 const { validationResult } = require('express-validator/check');
 
@@ -15,10 +16,24 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  // const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const description = req.body.description;
   const price = req.body.price;
   const userId = req.user._id;
+  console.log(image);
+  // Si y a pas d'image on retourne un 422
+  if (!image) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false,
+      hasError: true,
+      product: { title, description, price },
+      errorMessage: 'Attached file is not an image.',
+      validationErrors: []
+    });
+  }
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -27,7 +42,7 @@ exports.postAddProduct = (req, res, next) => {
       path: '/admin/add-product',
       editing: false,
       hasError: true,
-      product: { title, imageUrl, description, price },
+      product: { title, description, price },
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array()
     });
@@ -48,6 +63,8 @@ exports.postAddProduct = (req, res, next) => {
   // *
   // *
 
+  // Ici on store le path de l'email qu'on récupère de multer
+  const imageUrl = image.path;
   // Avec mongoose, on map les valeurs qu'on a défini dans notre schema
   // Le seul argument est donc cet objet javascript, ici j'utilise syntaxe ES6 mais en réalité le code =
   // title: title, price: price... (schema: dataRequest)
@@ -103,7 +120,8 @@ exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
-  const updatedImageUrl = req.body.imageUrl;
+  // const updatedImageUrl = req.body.imageUrl;
+  const image = req.file;
   const updatedDescription = req.body.description;
   const errors = validationResult(req);
 
@@ -115,7 +133,6 @@ exports.postEditProduct = (req, res, next) => {
       hasError: true,
       product: {
         title: updatedTitle,
-        imageUrl: updatedImageUrl,
         description: updatedDescription,
         price: updatedPrice,
         _id: prodId
@@ -148,7 +165,15 @@ exports.postEditProduct = (req, res, next) => {
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDescription;
-      product.imageUrl = updatedImageUrl;
+      // Si on a une nouvelle image (pas undefined) alors on va la store
+      // Sinon on fait rien donc on garder l'ancienne image déjà store
+      if (image) {
+        // On supprimé l'ancien imageUrl (avec notre fonction deleteFile de util/file)
+        fileHelper.deleteFile(product.imageUrl);
+        // Puis on créer une nouvelle imageUrl avec la nouvelle image upload
+        product.imageUrl = image.path;
+      }
+
       // Enfin on utilise la méthode save() de mongoose qui update notre product en bdd
       return product.save().then(result => {
         console.log('Updated Product');
@@ -196,17 +221,16 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  // **** Ancien code sans mongoose ****
-  // *
-  // deleteById() est une méthode qu'on a définie dans notre modèle Product avec mongoDB
-  // Product.deleteById(prodId)
-  //*
-
-  // findByIdAndRemove() est une méthode fournie par mongoose
-  // Product.findByIdAndRemove(prodId)
-
-  // On filtre avec l'id du produit et du user associé pour que ce ne soit que lui qui puisse delete
-  Product.deleteOne({ _id: prodId, userId: req.user._id })
+  // Ici on delete l'image associée au produit
+  Product.findById(prodId)
+    .then(product => {
+      if (!product) {
+        return next(new Error('Product not found.'));
+      }
+      fileHelper.deleteFile(product.imageUrl);
+      // On filtre avec l'id du produit et du user associé pour que ce ne soit que lui qui puisse delete
+      return Product.deleteOne({ _id: prodId, userId: req.user._id });
+    })
     .then(() => {
       console.log('Product deleted');
       res.redirect('/admin/products');
@@ -217,4 +241,13 @@ exports.postDeleteProduct = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     });
+
+  // **** Ancien code sans mongoose ****
+  // *
+  // deleteById() est une méthode qu'on a définie dans notre modèle Product avec mongoDB
+  // Product.deleteById(prodId)
+  //*
+
+  // findByIdAndRemove() est une méthode fournie par mongoose
+  // Product.findByIdAndRemove(prodId)
 };

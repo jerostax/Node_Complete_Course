@@ -1,3 +1,8 @@
+const fs = require('fs');
+const path = require('path');
+
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -238,4 +243,80 @@ exports.getCheckout = (req, res, next) => {
     pageTitle: 'Checkout',
     path: '/checkout'
   });
+};
+
+exports.getInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+  Order.findById(orderId)
+    .then(order => {
+      if (!order) {
+        return next(new Error('No order found.'));
+      }
+      // Ici on check si le userId de l'order n'est pas égal à l'id du user logged in
+      if (order.user.userId.toString() !== req.user._id.toString()) {
+        return next(new Error('Unauthorized'));
+      }
+      // Si on passe les 2 if alors on va lire le fichier et l'ouput
+      const invoiceName = 'invoice-' + orderId + '.pdf';
+      const invoicePath = path.join('data', 'invoices', invoiceName);
+
+      const pdfDoc = new PDFDocument();
+      res.setHeader('Content-type', 'application/pdf');
+      res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+      // Ici on écrits/créé un stream pour le nouveau pdf et on lui met le path où on veux le store
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
+
+      pdfDoc.fontSize(26).text('Invoice', {
+        underline: true
+      });
+
+      pdfDoc.text('----------------------');
+      let totalPrice = 0;
+      order.products.forEach(prod => {
+        totalPrice += prod.quantity * prod.product.price;
+        pdfDoc
+          .fontSize(14)
+          .text(
+            prod.product.title +
+              ' - ' +
+              prod.quantity +
+              ' x ' +
+              prod.product.price +
+              ' €'
+          );
+      });
+      pdfDoc.text('-----');
+      pdfDoc.fontSize(20).text('Total Price: ' + totalPrice + ' €');
+      pdfDoc.end();
+
+      // **** Code avant de stream la réponse ****
+      // *
+      // Ici on va lire l'invoice grâce au core module filesystem auquel on passe le path
+      // fs.readFile(invoicePath, (err, data) => {
+      //   if (err) {
+      //     return next(err);
+      //   }
+      //   // On renseigne au navigateur le content type
+      //   res.setHeader('Content-type', 'application/pdf');
+      //   // Ici on configure le nom du file pour le navigateur
+      //   res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+      //   // Si y a pas d'erreur on renvoi la data
+      //   res.send(data);
+      // });
+      // *
+
+      // **** Code avant de write/créer un pdf ****
+      // *
+      // Maintenant on va lire les fichier en créant un stream pour éviter de tout lire d'un coup si fichier trop lourd
+      //   const file = fs.createReadStream(invoicePath);
+      //   res.setHeader('Content-type', 'application/pdf');
+      //   res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+      //   file.pipe(res);
+      // *
+    })
+
+    .catch(err => {
+      return next(err);
+    });
 };
