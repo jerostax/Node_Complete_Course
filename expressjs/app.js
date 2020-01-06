@@ -78,6 +78,7 @@ app.use(
 );
 // Middleware pour server des fichiers statics
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 // Middleware qui déclenche la session
 // resave : false => veux dire que la session ne sera pas enregistrée à chaque requete effectuée mais seulement si quelque chose change dans la session
 // saveUninitialized : false => assure que la session ne sera pas enregistrée s'il y a une requête ou rien n'a changé dans la session
