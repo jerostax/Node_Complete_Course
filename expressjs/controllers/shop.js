@@ -257,19 +257,30 @@ exports.getInvoice = (req, res, next) => {
       // Si on passe les 2 if alors on va lire le fichier et l'ouput
       const invoiceName = 'invoice-' + orderId + '.pdf';
       const invoicePath = path.join('data', 'invoices', invoiceName);
+
+      // **** Code avant de stream la réponse ****
+      // *
       // Ici on va lire l'invoice grâce au core module filesystem auquel on passe le path
-      fs.readFile(invoicePath, (err, data) => {
-        if (err) {
-          return next(err);
-        }
-        // On renseigne au navigateur le content type
-        res.setHeader('Content-type', 'application/pdf');
-        // Ici on configure le nom du file pour le navigateur
-        res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
-        // Si y a pas d'erreur on renvoi la data
-        res.send(data);
-      });
+      // fs.readFile(invoicePath, (err, data) => {
+      //   if (err) {
+      //     return next(err);
+      //   }
+      //   // On renseigne au navigateur le content type
+      //   res.setHeader('Content-type', 'application/pdf');
+      //   // Ici on configure le nom du file pour le navigateur
+      //   res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+      //   // Si y a pas d'erreur on renvoi la data
+      //   res.send(data);
+      // });
+      // *
+
+      // Maintenant on va lire les fichier en créant un stream pour éviter de tout lire d'un coup si fichier trop lourd
+      const file = fs.createReadStream(invoicePath);
+      res.setHeader('Content-type', 'application/pdf');
+      res.setHeader('Content-disposition', `inline; filename=${invoiceName}`);
+      file.pipe(res);
     })
+
     .catch(err => {
       return next(err);
     });
