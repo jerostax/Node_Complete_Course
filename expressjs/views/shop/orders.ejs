@@ -15,7 +15,7 @@
                             <ul class="orders__products">
                                 <!-- products correspond à la liste des produits contenu dans le tableau de l'order (qu'on a include dans la méthode getOrder() du controller shop.js-->
                                 <% order.products.forEach(p => { %>
-                                    <li class="orders__products-item"><%= p.product.title %> (<%= p.quantity %>)</li>
+                                    <li class="orders__products-item"><%= p.product.title %> (<%= p.quantity %>) - <a href='/orders/<%= order._id %>'>Invoice</a></li>
                                 <% }); %>
                             </ul>
                         </li>
