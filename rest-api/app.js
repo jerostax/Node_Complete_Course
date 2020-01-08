@@ -8,7 +8,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  res.setHeader('Acces-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
     'Access-Controll-Allow-Methods',
     'GET, POST, PUT, PATCH, DELETE'
