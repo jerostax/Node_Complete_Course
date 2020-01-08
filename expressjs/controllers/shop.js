@@ -1,5 +1,9 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
+const STRIPE_PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY;
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+const stripe = require('stripe')(STRIPE_SECRET_KEY);
 
 const PDFDocument = require('pdfkit');
 
@@ -147,6 +151,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
+  console.log('CART PAGE');
   req.user
     // **** Code sans mongoose ****
     // *
@@ -215,6 +220,99 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .then(result => {
       console.log('Product deleted from the cart');
       res.redirect('/cart');
+    })
+    .catch(err => {
+      // Ici on créé une nouvelle erreur avec le status 500 (server error)
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.getCheckout = (req, res, next) => {
+  let products;
+  let total = 0;
+  req.user
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      products = user.cart.items;
+      total = 0;
+      products.forEach(p => {
+        total += p.quantity * p.productId.price;
+      });
+      // Ici on créé la session stripe
+      // Et on configure avec tout ce dont stipe à besoin (méthode de paiement, items avec nomn description, currency, qty...)
+      return stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: products.map(p => {
+          return {
+            name: p.productId.title,
+            description: p.productId.description,
+            // On multiplie par 100 le prix car il doit être en centimes
+            amount: p.productId.price * 100,
+            currency: 'eur',
+            quantity: p.quantity
+          };
+        }),
+        success_url:
+          req.protocol + '://' + req.get('host') + '/checkout/success', // => http + :// + localhost:3000 || domaine en prod
+        cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel'
+      });
+    })
+    .then(session => {
+      res.render('shop/checkout', {
+        path: '/checkout',
+        pageTitle: 'Checkout',
+        products,
+        totalSum: total,
+        sessionId: session.id,
+        stripe_publishable_key: STRIPE_PUBLISHABLE_KEY
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.getCheckoutSuccess = (req, res, next) => {
+  // D'abord on récupère les products dans le panier
+  req.user
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      // Rappelons nous que nous avons la champs quantity dans les produts
+      // On veux donc map dessus pour retourner un objet avec le champs quantity et le champs product qui contient les datas du product
+      const products = user.cart.items.map(item => {
+        // _doc nous permet d'accéder au document productId qui contient lui même le détails des produits (title, price...)
+        // On fait donc une copie de l'objet productId avec le détails de ses champs
+        return {
+          quantity: item.quantity,
+          product: { ...item.productId._doc }
+        };
+      });
+      // Ensuite on créé un nouvel Order dans lequel on y passe les data du user et des produits du panier (qu'on a précédement stocké dans la variable products avec la quantity et les autres datas)
+      // Donc ici products === products : products (la variable product au dessus)
+      const order = new Order({
+        user: {
+          // name: req.user.name,
+          email: req.user.email,
+          userId: req.user._id
+        },
+        products
+      });
+      // Enfin on utilise la méthode save() pour enregistrer le nouvel order
+      return order.save();
+    })
+    .then(result => {
+      console.log('Products added to Order');
+      // On déclenche notre méthode clearCart() du modele user afin de vider le panier
+      return req.user.clearCart();
+    })
+    .then(() => {
+      res.redirect('/orders');
     })
     .catch(err => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
@@ -302,13 +400,6 @@ exports.getOrders = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     });
-};
-
-exports.getCheckout = (req, res, next) => {
-  res.render('shop/checkout', {
-    pageTitle: 'Checkout',
-    path: '/checkout'
-  });
 };
 
 exports.getInvoice = (req, res, next) => {

@@ -168,6 +168,7 @@ app.use(errorController.get404Page);
 
 // Express passe dans ce middleware quand on retourne next(error) (voir controllers en cas d'erreur)
 app.use((error, req, res, next) => {
+  console.log(error);
   res.status(500).render('500', {
     pageTitle: 'Error!',
     path: '/500',
