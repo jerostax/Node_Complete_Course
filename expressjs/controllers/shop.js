@@ -6,7 +6,7 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 1;
 
 exports.getProducts = (req, res, next) => {
   // **** Code sans mongoose ****
@@ -60,18 +60,19 @@ exports.getIndex = (req, res, next) => {
   // *
 
   // Ici on accède au query nommé page
-  const page = req.query.page;
+  // on précise || 1 si on a pas le numéro de la page quand on arrive la première fois sur juste '/' par exemple
+  const page = +req.query.page || 1;
   let totalItems;
 
   Product.find()
-    .count()
+    .countDocuments()
     .then(numProducts => {
       totalItems = numProducts;
       return Product.find()
         .skip((page - 1) * ITEMS_PER_PAGE)
         .limit(ITEMS_PER_PAGE);
     })
-    // **** Code avant de count() les produits
+    // **** Code avant de countDocuments() les produits
     // *
     // Product.find()
     //   // Ici un calcul que je comprend pas bien qui va "skip" les premiers résultats
@@ -88,8 +89,9 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
+        currentPage: page,
         // Ici on passe l'information du nombre de produits total que l'on a
-        totalProducts: totalItems,
+        // totalProducts: totalItems,
         // Ici on check si on a plus d'items au total que sur la page ou l'on est actuellement
         hasNextPage: ITEMS_PER_PAGE * page < totalItems,
         // La on check si la page sur laquelle on est et plus grande que 1, si c'est le cas il y a bien une previous page
