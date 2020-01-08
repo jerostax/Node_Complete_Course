@@ -6,6 +6,8 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
+const ITEMS_PER_PAGE = 2;
+
 exports.getProducts = (req, res, next) => {
   // **** Code sans mongoose ****
   // *
@@ -57,8 +59,18 @@ exports.getIndex = (req, res, next) => {
   // Product.fetchAll()
   // *
 
+  // Ici on accède au query nommé page
+  const page = req.query.page;
   Product.find()
+    // Ici un calcul que je comprend pas bien qui va "skip" les premiers résultats
+    // Le numéro de la page précédente (page - 1) fois le nombre d'items par page
+    // Donc si je suis sur la page 2, on va faire page - 1 = 1, fois items par page = 2
+    // page 3, page - 1 = 2, fois items par page = 4
+    .skip((page - 1) * ITEMS_PER_PAGE)
+    // Ici on précise la limite d'items par page
+    .limit(ITEMS_PER_PAGE)
     .then(products => {
+      // console.log((page - 1) * ITEMS_PER_PAGE);
       res.render('shop/index', {
         prods: products,
         pageTitle: 'Shop',
