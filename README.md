@@ -15,3 +15,7 @@ Dans ce dossier, les bases de la création d'un server NodeJs
 ### 4 - [ExpressJs](https://github.com/jerostax/Node_Complete_Course/tree/master/expressjs)
 
 Dans ce dossier, premier projet en utilisant le framework Expressjs pour faciliter le développement NodeJs.
+
+### 5 - [Rest API](https://github.com/jerostax/Node_Complete_Course/tree/master/rest-api)
+
+Dans ce dossier, première API créée avec node/express
