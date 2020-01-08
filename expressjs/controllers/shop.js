@@ -6,7 +6,7 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 2;
 
 exports.getProducts = (req, res, next) => {
   // **** Code sans mongoose ****
@@ -16,12 +16,41 @@ exports.getProducts = (req, res, next) => {
   // *
 
   // find() nous est fourni par mongoose et nous donne tous nos produits
+  const page = +req.query.page || 1;
+  let totalItems;
+
   Product.find()
+    .countDocuments()
+    .then(numProducts => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then(products => {
+      // console.log((page - 1) * ITEMS_PER_PAGE);
       res.render('shop/product-list', {
         prods: products,
-        pageTitle: 'All Products',
-        path: '/products'
+        pageTitle: 'Products',
+        path: '/products',
+        currentPage: page,
+        // Ici on passe l'information du nombre de produits total que l'on a
+        // totalProducts: totalItems,
+        // Ici on check si on a plus d'items au total que sur la page ou l'on est actuellement
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        // La on check si la page sur laquelle on est et plus grande que 1, si c'est le cas il y a bien une previous page
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        // Caclul simple pour trouver la dernière page, nombre total d'items divisé par nombre d'item par page = nombre de pages total
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        // **** Code avant de refacto isAuth et crsfToken sur toutes les pages ****
+        // *
+        // isAuthenticated: req.session.isLoggedIn,
+        // // La méthode csrfToken() est fournie par le csrf middleware du package csurf
+        // // Ici on le rend donc utilisable dans la view
+        // csrfToken: req.csrfToken()
+        // *
       });
     })
     .catch(err => {
