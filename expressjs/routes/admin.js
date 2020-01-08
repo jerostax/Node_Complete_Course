@@ -61,7 +61,13 @@ router.post(
   adminController.postEditProduct
 );
 
-router.post('/delete-product', isAuth, adminController.postDeleteProduct);
+// delete() = http method
+router.delete('/product/:productId', isAuth, adminController.deleteProduct);
+
+// **** Code avant async request ****
+// *
+// router.post('/delete-product', isAuth, adminController.postDeleteProduct);
+// *
 
 // ***** SANS LE MVC PATTERN *****
 // *

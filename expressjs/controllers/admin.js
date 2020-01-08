@@ -219,8 +219,9 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+exports.deleteProduct = (req, res, next) => {
+  // On récupère l'id du product qui est passé dans le param de l'url
+  const prodId = req.params.productId;
   // Ici on delete l'image associée au produit
   Product.findById(prodId)
     .then(product => {
@@ -233,21 +234,46 @@ exports.postDeleteProduct = (req, res, next) => {
     })
     .then(() => {
       console.log('Product deleted');
-      res.redirect('/admin/products');
+      // Mtn on retourne une réponse json car on veux plus render ou redirect mais juste update de la data sur la page
+      res.status(200).json({ message: 'Success!' });
     })
     .catch(err => {
-      // Ici on créé une nouvelle erreur avec le status 500 (server error)
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      res.status(500).json({ message: 'Deleting product failed.' });
     });
-
-  // **** Ancien code sans mongoose ****
-  // *
-  // deleteById() est une méthode qu'on a définie dans notre modèle Product avec mongoDB
-  // Product.deleteById(prodId)
-  //*
-
-  // findByIdAndRemove() est une méthode fournie par mongoose
-  // Product.findByIdAndRemove(prodId)
 };
+
+// ***** Code avant async request pour post delete product ****
+// *
+// exports.postDeleteProduct = (req, res, next) => {
+//   const prodId = req.body.productId;
+//   // Ici on delete l'image associée au produit
+//   Product.findById(prodId)
+//     .then(product => {
+//       if (!product) {
+//         return next(new Error('Product not found.'));
+//       }
+//       fileHelper.deleteFile(product.imageUrl);
+//       // On filtre avec l'id du produit et du user associé pour que ce ne soit que lui qui puisse delete
+//       return Product.deleteOne({ _id: prodId, userId: req.user._id });
+//     })
+//     .then(() => {
+//       console.log('Product deleted');
+//       res.redirect('/admin/products');
+//     })
+//     .catch(err => {
+//       // Ici on créé une nouvelle erreur avec le status 500 (server error)
+//       const error = new Error(err);
+//       error.httpStatusCode = 500;
+//       return next(error);
+//     });
+
+//   // **** Ancien code sans mongoose ****
+//   // *
+//   // deleteById() est une méthode qu'on a définie dans notre modèle Product avec mongoDB
+//   // Product.deleteById(prodId)
+//   //*
+
+//   // findByIdAndRemove() est une méthode fournie par mongoose
+//   // Product.findByIdAndRemove(prodId)
+// };
+// *
