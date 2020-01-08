@@ -28,6 +28,8 @@
                     </article>
                 <% } %>
             </div>
+            <!-- on passe les datas qu'on veux transmettre à notre page pagination, ici ES6 (currentPage: currentPage...)-->
+            <%- include('../includes/pagination.ejs', {currentPage, nextPage, previousPage, lastPage, hasNextPage, hasPreviousPage}) %>
         <% } else { %>
             <h1>No Products Found!</h1>
         <% } %>
