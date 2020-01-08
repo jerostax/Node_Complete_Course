@@ -63,7 +63,7 @@ exports.postAddProduct = (req, res, next) => {
   // *
   // *
 
-  // Ici on store le path de l'email qu'on récupère de multer
+  // Ici on store le path de l'image qu'on récupère de multer
   const imageUrl = image.path;
   // Avec mongoose, on map les valeurs qu'on a défini dans notre schema
   // Le seul argument est donc cet objet javascript, ici j'utilise syntaxe ES6 mais en réalité le code =
