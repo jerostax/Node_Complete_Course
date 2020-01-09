@@ -11,7 +11,7 @@ router.put(
   [
     body('email')
       .isEmail()
-      .withMessage('Please enter a valid email.')()
+      .withMessage('Please enter a valid email.')
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then(userDoc => {
           if (userDoc) {
