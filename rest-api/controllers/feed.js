@@ -30,6 +30,7 @@ exports.createPost = (req, res, next) => {
     title: title,
     content: content,
     imageUrl: 'images/chamonix.jpg',
+    // const imageUrl = req.file.path.replace("\\" ,"/");
     creator: { name: 'Jérémy' }
   });
   post

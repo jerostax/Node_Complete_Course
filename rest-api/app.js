@@ -4,6 +4,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const uuidv4 = require('uuid/v4');
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -32,6 +33,15 @@ app.use((error, req, res, next) => {
   const message = error.message;
   res.status(status).json({ message: message });
 });
+
+// const storage = multer.diskStorage({
+//   destination: function(req, file, cb) {
+//     cb(null, 'images');
+//   },
+//   filename: function(req, file, cb) {
+//     cb(null, uuidv4());
+//   }
+// });
 
 mongoose
   .connect(MONGODB_URI)
