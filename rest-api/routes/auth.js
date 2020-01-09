@@ -18,8 +18,9 @@ router.put(
             return Promise.reject('Email address already exists!');
           }
         });
-      })
-      .normalizeEmail(),
+      }),
+    // NOTE: normalizeEmail() retire le "." de jeremy.geneste@gmail... soucis
+    // .normalizeEmail(),
     body('password')
       .trim()
       .isLength({ min: 5 }),
@@ -31,6 +32,6 @@ router.put(
   authController.signup
 );
 
-router.post('/login');
+router.post('/login', authController.login);
 
 module.exports = router;
