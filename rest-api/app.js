@@ -10,6 +10,7 @@ const uuidv4 = require('uuid/v4');
 const MONGODB_URI = process.env.MONGODB_URI;
 
 const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
