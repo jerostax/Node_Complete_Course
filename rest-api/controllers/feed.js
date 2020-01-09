@@ -22,6 +22,12 @@ exports.createPost = (req, res, next) => {
   // 201 = "success a ressource is created"
   res.status(201).json({
     message: 'Post created successfully!',
-    post: { id: new Date().getTime(), title: title, content: content }
+    post: {
+      _id: new Date().getTime(),
+      title: title,
+      content: content,
+      creator: { name: 'Jérémy' },
+      createdAt: new Date()
+    }
   });
 };
