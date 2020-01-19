@@ -68,7 +68,7 @@ mongoose
     // On établi notre connexion au protocol websocket
     // On utilise notre server http pour établir notre connexion websocket
     // cela nous donne un objet socket.io qui setup le websocket pour nous
-    const io = require('socket.io')(server);
+    const io = require('./socket').init(server);
     io.on('connection', socket => {
       console.log('Client connected');
     });
