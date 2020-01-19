@@ -3,7 +3,7 @@ const path = require('path');
 
 const { validationResult } = require('express-validator/check');
 
-const io = require('./socket');
+const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
 
@@ -59,7 +59,7 @@ exports.createPost = async (req, res, next) => {
     user.posts.push(post);
     await user.save();
     // On récupère notre objet IO grâce à la fonction getIO() qui retourne io dans socket.js
-    // avec emit() on créé un channel posts, on décrit une action et on renvoi le contenu, ici le nouveau post
+    // Ici avec emit() on créé un channel posts, on décrit une action (pas obligatoire mais on en a besoin pour différencier les opérations qui se font sur post (comme edit)), et on renvoi le contenu, ici le nouveau post
     // Ca nous permet d'envoyer à tous les clients connectés
     io.getIO().emit('posts', { action: 'create', post: post });
     res.status(201).json({
