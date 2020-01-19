@@ -3,6 +3,7 @@ const path = require('path');
 
 const { validationResult } = require('express-validator/check');
 
+const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user');
 
@@ -14,6 +15,7 @@ exports.getPosts = async (req, res, next) => {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
       .populate('creator')
+      .sort({ createdAt: -1 })
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
@@ -57,6 +59,13 @@ exports.createPost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.push(post);
     await user.save();
+    // On récupère notre objet IO grâce à la fonction getIO() qui retourne io dans socket.js
+    // Ici avec emit() on créé un channel posts, on décrit une action (pas obligatoire mais on en a besoin pour différencier les opérations qui se font sur post (comme edit)), et on renvoi le contenu, ici le nouveau post
+    // Ca nous permet d'envoyer à tous les clients connectés
+    io.getIO().emit('posts', {
+      action: 'create',
+      post: { ...post._doc, creator: { _id: req.userId, name: user.name } }
+    });
     res.status(201).json({
       message: 'Post created successfully!',
       post: post,
@@ -112,13 +121,14 @@ exports.updatePost = async (req, res, next) => {
   }
 
   try {
-    const post = await Post.findById(postId);
+    const post = await (await Post.findById(postId)).populate('creator');
     if (!post) {
       const error = new Error('Could not find post.');
       error.statusCode = 404;
       throw Error;
     }
-    if (post.creator.toString() !== req.userId) {
+    // Vu qu'on populate le post avec toutes les data du creator, il faut préciser le champs _id
+    if (post.creator._id.toString() !== req.userId) {
       const error = new Error('Not authorized!');
       error.statusCode = 403;
       throw error;
@@ -130,9 +140,11 @@ exports.updatePost = async (req, res, next) => {
     post.imageUrl = imageUrl;
     post.content = content;
     const result = await post.save();
+    io.getIO().emit('posts', { action: 'update', post: result });
     res.status(200).json({ message: 'Post updated.', post: result });
   } catch (err) {
     if (!err.statusCode) {
+      err.stackTraceLimit = 40;
       err.statusCode = 500;
     }
     next(err);
@@ -159,6 +171,7 @@ exports.deletePost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.pull(postId);
     await user.save();
+    io.getIO().emit('posts', { action: 'delete', post: postId });
     res.status(200).json({ message: 'Deleted post.' });
   } catch (err) {
     if (!err.statusCode) {
