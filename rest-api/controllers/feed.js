@@ -61,7 +61,10 @@ exports.createPost = async (req, res, next) => {
     // On récupère notre objet IO grâce à la fonction getIO() qui retourne io dans socket.js
     // Ici avec emit() on créé un channel posts, on décrit une action (pas obligatoire mais on en a besoin pour différencier les opérations qui se font sur post (comme edit)), et on renvoi le contenu, ici le nouveau post
     // Ca nous permet d'envoyer à tous les clients connectés
-    io.getIO().emit('posts', { action: 'create', post: post });
+    io.getIO().emit('posts', {
+      action: 'create',
+      post: { ...post._doc, creator: { _id: req.userId, name: user.name } }
+    });
     res.status(201).json({
       message: 'Post created successfully!',
       post: post,
