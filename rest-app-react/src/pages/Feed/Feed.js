@@ -42,7 +42,15 @@ class Feed extends Component {
       .catch(this.catchError);
 
     this.loadPosts();
-    openSocket('http://localhost:8080');
+    const socket = openSocket('http://localhost:8080');
+    // posts = nom défini pour le channel sur le server (controller feed.js)
+    socket.on('posts', data => {
+      // on vérifi le type d'action grâce à la propriété qu'on a défini côté server dans l'objet io
+      if (data.action === 'create') {
+        // on passe les data qu'on a mis dans l'objet io côté server
+        this.addPost(data.post);
+      }
+    });
   }
 
   addPost = post => {
@@ -192,8 +200,6 @@ class Feed extends Component {
               p => p._id === prevState.editPost._id
             );
             updatedPosts[postIndex] = post;
-          } else if (prevState.posts.length < 2) {
-            updatedPosts = prevState.posts.concat(post);
           }
           return {
             posts: updatedPosts,
