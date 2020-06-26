@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import openSocket from 'socket.io-client';
 
 import Post from '../../components/Feed/Post/Post';
 import Button from '../../components/Button/Button';
@@ -19,74 +18,32 @@ class Feed extends Component {
     status: '',
     postPage: 1,
     postsLoading: true,
-    editLoading: false
+    editLoading: false,
   };
 
   componentDidMount() {
     fetch('http://localhost:8080/auth/status/', {
       method: 'GET',
       headers: {
-        Authorization: 'Bearer ' + this.props.token
-      }
+        Authorization: 'Bearer ' + this.props.token,
+      },
     })
-      .then(res => {
+      .then((res) => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch user status.');
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData) => {
         this.setState({ status: resData.status });
         console.log(resData);
       })
       .catch(this.catchError);
 
     this.loadPosts();
-    const socket = openSocket('http://localhost:8080');
-    // posts = nom défini pour le channel sur le server (controller feed.js)
-    socket.on('posts', data => {
-      // on vérifi le type d'action grâce à la propriété qu'on a défini côté server dans l'objet io
-      if (data.action === 'create') {
-        // on passe les data qu'on a mis dans l'objet io côté server
-        this.addPost(data.post);
-      } else if (data.action === 'update') {
-        this.updatePost(data.post);
-      } else if (data.action === 'delete') {
-        this.loadPosts();
-      }
-    });
   }
 
-  addPost = post => {
-    this.setState(prevState => {
-      const updatedPosts = [...prevState.posts];
-      if (prevState.postPage === 1) {
-        if (prevState.posts.length >= 2) {
-          updatedPosts.pop();
-        }
-        updatedPosts.unshift(post);
-      }
-      return {
-        posts: updatedPosts,
-        totalPosts: prevState.totalPosts + 1
-      };
-    });
-  };
-
-  updatePost = post => {
-    this.setState(prevState => {
-      const updatedPosts = [...prevState.posts];
-      const updatedPostIndex = updatedPosts.findIndex(p => p._id === post._id);
-      if (updatedPostIndex > -1) {
-        updatedPosts[updatedPostIndex] = post;
-      }
-      return {
-        posts: updatedPosts
-      };
-    });
-  };
-
-  loadPosts = direction => {
+  loadPosts = (direction) => {
     if (direction) {
       this.setState({ postsLoading: true, posts: [] });
     }
@@ -101,31 +58,31 @@ class Feed extends Component {
     }
     fetch('http://localhost:8080/feed/posts?page=' + page, {
       headers: {
-        Authorization: 'Bearer ' + this.props.token
-      }
+        Authorization: 'Bearer ' + this.props.token,
+      },
     })
-      .then(res => {
+      .then((res) => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch posts.');
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData) => {
         this.setState({
-          posts: resData.posts.map(post => {
+          posts: resData.posts.map((post) => {
             return {
               ...post,
-              imagePath: post.imageUrl
+              imagePath: post.imageUrl,
             };
           }),
           totalPosts: resData.totalItems,
-          postsLoading: false
+          postsLoading: false,
         });
       })
       .catch(this.catchError);
   };
 
-  statusUpdateHandler = event => {
+  statusUpdateHandler = (event) => {
     event.preventDefault();
 
     // const formData = new FormData();
@@ -134,19 +91,19 @@ class Feed extends Component {
       method: 'PUT',
       headers: {
         Authorization: 'Bearer ' + this.props.token,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        status: this.state.status
-      })
+        status: this.state.status,
+      }),
     })
-      .then(res => {
+      .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Can't update status!");
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData) => {
         console.log(resData);
         console.log('updated from client', this.state.status);
       })
@@ -157,13 +114,13 @@ class Feed extends Component {
     this.setState({ isEditing: true });
   };
 
-  startEditPostHandler = postId => {
-    this.setState(prevState => {
-      const loadedPost = { ...prevState.posts.find(p => p._id === postId) };
+  startEditPostHandler = (postId) => {
+    this.setState((prevState) => {
+      const loadedPost = { ...prevState.posts.find((p) => p._id === postId) };
 
       return {
         isEditing: true,
-        editPost: loadedPost
+        editPost: loadedPost,
       };
     });
   };
@@ -172,9 +129,9 @@ class Feed extends Component {
     this.setState({ isEditing: false, editPost: null });
   };
 
-  finishEditHandler = postData => {
+  finishEditHandler = (postData) => {
     this.setState({
-      editLoading: true
+      editLoading: true,
     });
     // Set up data (with image!)
     const formData = new FormData();
@@ -192,29 +149,29 @@ class Feed extends Component {
       method: method,
       body: formData,
       headers: {
-        Authorization: 'Bearer ' + this.props.token
-      }
+        Authorization: 'Bearer ' + this.props.token,
+      },
     })
-      .then(res => {
+      .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Creating or editing a post failed!');
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData) => {
         console.log(resData);
         const post = {
           _id: resData.post._id,
           title: resData.post.title,
           content: resData.post.content,
           creator: resData.post.creator,
-          createdAt: resData.post.createdAt
+          createdAt: resData.post.createdAt,
         };
-        this.setState(prevState => {
+        this.setState((prevState) => {
           return {
             isEditing: false,
             editPost: null,
-            editLoading: false
+            editLoading: false,
           };
         });
         // this.setState(prevState => {
@@ -233,13 +190,13 @@ class Feed extends Component {
         //   };
         // });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         this.setState({
           isEditing: false,
           editPost: null,
           editLoading: false,
-          error: err
+          error: err,
         });
       });
   };
@@ -248,21 +205,21 @@ class Feed extends Component {
     this.setState({ status: value });
   };
 
-  deletePostHandler = postId => {
+  deletePostHandler = (postId) => {
     this.setState({ postsLoading: true });
     fetch(`http://localhost:8080/feed/post/${postId}`, {
       method: 'DELETE',
       headers: {
-        Authorization: 'Bearer ' + this.props.token
-      }
+        Authorization: 'Bearer ' + this.props.token,
+      },
     })
-      .then(res => {
+      .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error('Deleting a post failed!');
         }
         return res.json();
       })
-      .then(resData => {
+      .then((resData) => {
         console.log(resData);
         this.loadPosts();
         // this.setState(prevState => {
@@ -270,7 +227,7 @@ class Feed extends Component {
         //   return { posts: updatedPosts, postsLoading: false };
         // });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         this.setState({ postsLoading: false });
       });
@@ -280,7 +237,7 @@ class Feed extends Component {
     this.setState({ error: null });
   };
 
-  catchError = error => {
+  catchError = (error) => {
     this.setState({ error: error });
   };
 
@@ -330,7 +287,7 @@ class Feed extends Component {
               lastPage={Math.ceil(this.state.totalPosts / 2)}
               currentPage={this.state.postPage}
             >
-              {this.state.posts.map(post => (
+              {this.state.posts.map((post) => (
                 <Post
                   key={post._id}
                   id={post._id}
