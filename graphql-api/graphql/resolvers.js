@@ -77,7 +77,6 @@ module.exports = {
   },
 
   createPost: async function ({ postInput }, req) {
-    console.log('IS AUTH', req.isAuth);
     if (!req.isAuth) {
       const error = new Error('Not authenticated');
       error.code = 401;
@@ -120,12 +119,9 @@ module.exports = {
       creator: user,
     });
 
-    console.log('POST', post);
-
     const createdPost = await post.save();
     user.posts.push(createdPost);
 
-    console.log('CREATED POST', createdPost);
     await user.save();
 
     return {
