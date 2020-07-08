@@ -56,7 +56,7 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    const graphqlQuery = {
+    let graphqlQuery = {
       query: `
         {
           posts(page: ${page}) {
@@ -171,7 +171,7 @@ class Feed extends Component {
       .then((res) => res.json())
       .then((fileResData) => {
         const imageUrl = fileResData.filePath;
-
+        console.log('IMAGE URL', imageUrl);
         let graphqlQuery = {
           query: `
           mutation {
