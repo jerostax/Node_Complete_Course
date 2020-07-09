@@ -1,5 +1,4 @@
-require('dotenv').config();
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-beqli.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
 const path = require('path');
 const express = require('express');
 // On importe le body parser
@@ -24,7 +23,7 @@ const app = express();
 // collection : on y spécifie dans quelle collection on veux store
 const store = new MongoDBStore({
   uri: MONGODB_URI,
-  collection: 'sessions'
+  collection: 'sessions',
 });
 
 // On initialise notre csrf protection
@@ -42,7 +41,7 @@ const fileStorage = multer.diskStorage({
     // file.originalname récupère le nom original du file
     // on concatene les 2 pour être sur de pas avoir 2 files du même nom
     callback(null, new Date().getTime() + '-' + file.originalname);
-  }
+  },
 });
 
 // Ici on rajoute un filtre pour accépter que les files valid (ici jpg, jpeg et png)
@@ -88,7 +87,7 @@ app.use(
     secret: 'my secret',
     resave: false,
     saveUninitialized: false,
-    store
+    store,
   })
 );
 //Après avoir initialisé la session, on utilise notre protection csrf pour filtrer toutes les requêtes entrantes qui pourrait venir d'un autre site
@@ -112,7 +111,7 @@ app.use((req, res, next) => {
     return next();
   }
   User.findById(req.session.user._id)
-    .then(user => {
+    .then((user) => {
       // throw new Error('Dummy');
       if (!user) {
         // Ici on gère le cas ou le user n'existe plus dans la bdd (il existe dans la session mais il a été supprimé dans la bdd par exemple)
@@ -121,7 +120,7 @@ app.use((req, res, next) => {
       req.user = user;
       next();
     })
-    .catch(err => {
+    .catch((err) => {
       next(new Error(err));
     });
 });
@@ -172,7 +171,7 @@ app.use((error, req, res, next) => {
   res.status(500).render('500', {
     pageTitle: 'Error!',
     path: '/500',
-    isAuthenticated: req.session.isLoggedIn
+    isAuthenticated: req.session.isLoggedIn,
   });
 });
 
@@ -188,7 +187,7 @@ app.use((error, req, res, next) => {
 // Puis dans le then() on lance notre app
 mongoose
   .connect(MONGODB_URI)
-  .then(result => {
+  .then((result) => {
     // **** Ancien code avant authentification flow pour créer un user s'il n'y en a pas ****
     // *
     // User.findOne().then(user => {
@@ -204,8 +203,8 @@ mongoose
     // });
     // *
 
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
   })
-  .catch(err => {
+  .catch((err) => {
     console.log(err);
   });
