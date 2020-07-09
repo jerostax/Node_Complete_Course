@@ -1,6 +1,8 @@
-require('dotenv').config();
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-beqli.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
 const path = require('path');
+const fs = require('fs');
+const https = require('https');
+
 const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
@@ -12,6 +14,9 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -24,11 +29,14 @@ const app = express();
 // collection : on y spécifie dans quelle collection on veux store
 const store = new MongoDBStore({
   uri: MONGODB_URI,
-  collection: 'sessions'
+  collection: 'sessions',
 });
 
 // On initialise notre csrf protection
 const csrfProtection = csrf();
+
+// const privateKey = fs.readFileSync('server.key');
+// const certificate = fs.readFileSync('server.cert');
 
 // diskstorage nous permet de configurer le file upload
 const fileStorage = multer.diskStorage({
@@ -42,7 +50,7 @@ const fileStorage = multer.diskStorage({
     // file.originalname récupère le nom original du file
     // on concatene les 2 pour être sur de pas avoir 2 files du même nom
     callback(null, new Date().getTime() + '-' + file.originalname);
-  }
+  },
 });
 
 // Ici on rajoute un filtre pour accépter que les files valid (ici jpg, jpeg et png)
@@ -69,6 +77,19 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'acces.log'),
+  { flags: 'a' }
+);
+
+// On utilise le package helmet pour secure nos Response Headers
+app.use(helmet());
+
+// On utilise le package compression qui va compressé nos assets
+app.use(compression());
+
+app.use(morgan('combined', { stream: accessLogStream }));
+
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
 // Middleware pour parse file data (ici single() = un seul file)
@@ -88,7 +109,7 @@ app.use(
     secret: 'my secret',
     resave: false,
     saveUninitialized: false,
-    store
+    store,
   })
 );
 //Après avoir initialisé la session, on utilise notre protection csrf pour filtrer toutes les requêtes entrantes qui pourrait venir d'un autre site
@@ -112,7 +133,7 @@ app.use((req, res, next) => {
     return next();
   }
   User.findById(req.session.user._id)
-    .then(user => {
+    .then((user) => {
       // throw new Error('Dummy');
       if (!user) {
         // Ici on gère le cas ou le user n'existe plus dans la bdd (il existe dans la session mais il a été supprimé dans la bdd par exemple)
@@ -121,7 +142,7 @@ app.use((req, res, next) => {
       req.user = user;
       next();
     })
-    .catch(err => {
+    .catch((err) => {
       next(new Error(err));
     });
 });
@@ -172,7 +193,7 @@ app.use((error, req, res, next) => {
   res.status(500).render('500', {
     pageTitle: 'Error!',
     path: '/500',
-    isAuthenticated: req.session.isLoggedIn
+    isAuthenticated: req.session.isLoggedIn,
   });
 });
 
@@ -188,7 +209,7 @@ app.use((error, req, res, next) => {
 // Puis dans le then() on lance notre app
 mongoose
   .connect(MONGODB_URI)
-  .then(result => {
+  .then((result) => {
     // **** Ancien code avant authentification flow pour créer un user s'il n'y en a pas ****
     // *
     // User.findOne().then(user => {
@@ -204,8 +225,13 @@ mongoose
     // });
     // *
 
-    app.listen(3000);
+    // LOCAL SSL SERVER
+    // https
+    //   .createServer({ key: privateKey, cert: certificate }, app)
+    //   .listen(process.env.PORT || 3000);
+
+    app.listen(process.env.PORT || 3000);
   })
-  .catch(err => {
+  .catch((err) => {
     console.log(err);
   });

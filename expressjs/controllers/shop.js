@@ -1,9 +1,6 @@
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const STRIPE_PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY;
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const stripe = require('stripe')(STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 const PDFDocument = require('pdfkit');
 
@@ -25,13 +22,13 @@ exports.getProducts = (req, res, next) => {
 
   Product.find()
     .countDocuments()
-    .then(numProducts => {
+    .then((numProducts) => {
       totalItems = numProducts;
       return Product.find()
         .skip((page - 1) * ITEMS_PER_PAGE)
         .limit(ITEMS_PER_PAGE);
     })
-    .then(products => {
+    .then((products) => {
       // console.log((page - 1) * ITEMS_PER_PAGE);
       res.render('shop/product-list', {
         prods: products,
@@ -47,7 +44,7 @@ exports.getProducts = (req, res, next) => {
         nextPage: page + 1,
         previousPage: page - 1,
         // Caclul simple pour trouver la dernière page, nombre total d'items divisé par nombre d'item par page = nombre de pages total
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
         // **** Code avant de refacto isAuth et crsfToken sur toutes les pages ****
         // *
         // isAuthenticated: req.session.isLoggedIn,
@@ -57,7 +54,7 @@ exports.getProducts = (req, res, next) => {
         // *
       });
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -70,14 +67,14 @@ exports.getProduct = (req, res, next) => {
   // MongoDB => Ici on utilise la méthode findById() définie dans le modèle Product
   // Mongoose => La méthode findById() est fournie par mongoose
   Product.findById(prodId)
-    .then(product => {
+    .then((product) => {
       res.render('shop/product-detail', {
         product: product,
         pageTitle: product.title,
-        path: '/products'
+        path: '/products',
       });
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -99,7 +96,7 @@ exports.getIndex = (req, res, next) => {
 
   Product.find()
     .countDocuments()
-    .then(numProducts => {
+    .then((numProducts) => {
       totalItems = numProducts;
       return Product.find()
         .skip((page - 1) * ITEMS_PER_PAGE)
@@ -116,7 +113,7 @@ exports.getIndex = (req, res, next) => {
     //   // Ici on précise la limite d'items par page
     //   .limit(ITEMS_PER_PAGE)
     // *
-    .then(products => {
+    .then((products) => {
       // console.log((page - 1) * ITEMS_PER_PAGE);
       res.render('shop/index', {
         prods: products,
@@ -132,7 +129,7 @@ exports.getIndex = (req, res, next) => {
         nextPage: page + 1,
         previousPage: page - 1,
         // Caclul simple pour trouver la dernière page, nombre total d'items divisé par nombre d'item par page = nombre de pages total
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
         // **** Code avant de refacto isAuth et crsfToken sur toutes les pages ****
         // *
         // isAuthenticated: req.session.isLoggedIn,
@@ -142,7 +139,7 @@ exports.getIndex = (req, res, next) => {
         // *
       });
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -170,16 +167,16 @@ exports.getCart = (req, res, next) => {
     .populate('cart.items.productId')
     // Execute le populate sur les produits du panier
     .execPopulate()
-    .then(user => {
+    .then((user) => {
       const products = user.cart.items;
       res.render('shop/cart', {
         pageTitle: 'Your Cart',
         path: '/cart',
         // ES6 SYNTAXE
-        products
+        products,
       });
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -190,15 +187,15 @@ exports.getCart = (req, res, next) => {
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
-    .then(product => {
+    .then((product) => {
       // Ici on passe le product à la méthode addToCart du model user ce qui va l'ajouter au panier
       return req.user.addToCart(product);
     })
-    .then(result => {
+    .then((result) => {
       res.redirect('/cart');
       console.log(result);
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -217,11 +214,11 @@ exports.postCartDeleteProduct = (req, res, next) => {
     // *
 
     .removeFromCart(prodId)
-    .then(result => {
+    .then((result) => {
       console.log('Product deleted from the cart');
       res.redirect('/cart');
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -235,42 +232,42 @@ exports.getCheckout = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
     .execPopulate()
-    .then(user => {
+    .then((user) => {
       products = user.cart.items;
       total = 0;
-      products.forEach(p => {
+      products.forEach((p) => {
         total += p.quantity * p.productId.price;
       });
       // Ici on créé la session stripe
       // Et on configure avec tout ce dont stipe à besoin (méthode de paiement, items avec nomn description, currency, qty...)
       return stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: products.map(p => {
+        line_items: products.map((p) => {
           return {
             name: p.productId.title,
             description: p.productId.description,
             // On multiplie par 100 le prix car il doit être en centimes
             amount: p.productId.price * 100,
             currency: 'eur',
-            quantity: p.quantity
+            quantity: p.quantity,
           };
         }),
         success_url:
           req.protocol + '://' + req.get('host') + '/checkout/success', // => http + :// + localhost:3000 || domaine en prod
-        cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel'
+        cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
       });
     })
-    .then(session => {
+    .then((session) => {
       res.render('shop/checkout', {
         path: '/checkout',
         pageTitle: 'Checkout',
         products,
         totalSum: total,
         sessionId: session.id,
-        stripe_publishable_key: STRIPE_PUBLISHABLE_KEY
+        stripe_publishable_key: 'pk_test_tdOqFT7tkreDxCOeR4q1jYZu00oJXIMtGA',
       });
     })
-    .catch(err => {
+    .catch((err) => {
       const error = new Error(err);
       error.httpStatusCode = 500;
       return next(error);
@@ -282,15 +279,15 @@ exports.getCheckoutSuccess = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
     .execPopulate()
-    .then(user => {
+    .then((user) => {
       // Rappelons nous que nous avons la champs quantity dans les produts
       // On veux donc map dessus pour retourner un objet avec le champs quantity et le champs product qui contient les datas du product
-      const products = user.cart.items.map(item => {
+      const products = user.cart.items.map((item) => {
         // _doc nous permet d'accéder au document productId qui contient lui même le détails des produits (title, price...)
         // On fait donc une copie de l'objet productId avec le détails de ses champs
         return {
           quantity: item.quantity,
-          product: { ...item.productId._doc }
+          product: { ...item.productId._doc },
         };
       });
       // Ensuite on créé un nouvel Order dans lequel on y passe les data du user et des produits du panier (qu'on a précédement stocké dans la variable products avec la quantity et les autres datas)
@@ -299,14 +296,14 @@ exports.getCheckoutSuccess = (req, res, next) => {
         user: {
           // name: req.user.name,
           email: req.user.email,
-          userId: req.user._id
+          userId: req.user._id,
         },
-        products
+        products,
       });
       // Enfin on utilise la méthode save() pour enregistrer le nouvel order
       return order.save();
     })
-    .then(result => {
+    .then((result) => {
       console.log('Products added to Order');
       // On déclenche notre méthode clearCart() du modele user afin de vider le panier
       return req.user.clearCart();
@@ -314,7 +311,7 @@ exports.getCheckoutSuccess = (req, res, next) => {
     .then(() => {
       res.redirect('/orders');
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -327,15 +324,15 @@ exports.postOrder = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
     .execPopulate()
-    .then(user => {
+    .then((user) => {
       // Rappelons nous que nous avons la champs quantity dans les produts
       // On veux donc map dessus pour retourner un objet avec le champs quantity et le champs product qui contient les datas du product
-      const products = user.cart.items.map(item => {
+      const products = user.cart.items.map((item) => {
         // _doc nous permet d'accéder au document productId qui contient lui même le détails des produits (title, price...)
         // On fait donc une copie de l'objet productId avec le détails de ses champs
         return {
           quantity: item.quantity,
-          product: { ...item.productId._doc }
+          product: { ...item.productId._doc },
         };
       });
       // Ensuite on créé un nouvel Order dans lequel on y passe les data du user et des produits du panier (qu'on a précédement stocké dans la variable products avec la quantity et les autres datas)
@@ -344,14 +341,14 @@ exports.postOrder = (req, res, next) => {
         user: {
           // name: req.user.name,
           email: req.user.email,
-          userId: req.user._id
+          userId: req.user._id,
         },
-        products
+        products,
       });
       // Enfin on utilise la méthode save() pour enregistrer le nouvel order
       return order.save();
     })
-    .then(result => {
+    .then((result) => {
       console.log('Products added to Order');
       // On déclenche notre méthode clearCart() du modele user afin de vider le panier
       return req.user.clearCart();
@@ -359,7 +356,7 @@ exports.postOrder = (req, res, next) => {
     .then(() => {
       res.redirect('/orders');
     })
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -370,12 +367,12 @@ exports.postOrder = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
   // Ici on find() les orders qui ont le même userId que l'id du user qui fait la requête
   Order.find({ 'user.userId': req.user._id })
-    .then(orders => {
+    .then((orders) => {
       res.render('shop/orders', {
         pageTitle: 'Your Orders',
         path: '/orders',
         // ES6 SYNTAXE
-        orders
+        orders,
       });
     })
 
@@ -394,7 +391,7 @@ exports.getOrders = (req, res, next) => {
     //   })
     // *
 
-    .catch(err => {
+    .catch((err) => {
       // Ici on créé une nouvelle erreur avec le status 500 (server error)
       const error = new Error(err);
       error.httpStatusCode = 500;
@@ -405,7 +402,7 @@ exports.getOrders = (req, res, next) => {
 exports.getInvoice = (req, res, next) => {
   const orderId = req.params.orderId;
   Order.findById(orderId)
-    .then(order => {
+    .then((order) => {
       if (!order) {
         return next(new Error('No order found.'));
       }
@@ -425,12 +422,12 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.pipe(res);
 
       pdfDoc.fontSize(26).text('Invoice', {
-        underline: true
+        underline: true,
       });
 
       pdfDoc.text('----------------------');
       let totalPrice = 0;
-      order.products.forEach(prod => {
+      order.products.forEach((prod) => {
         totalPrice += prod.quantity * prod.product.price;
         pdfDoc
           .fontSize(14)
@@ -473,7 +470,7 @@ exports.getInvoice = (req, res, next) => {
       // *
     })
 
-    .catch(err => {
+    .catch((err) => {
       return next(err);
     });
 };
