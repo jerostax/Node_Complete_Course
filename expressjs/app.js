@@ -35,8 +35,8 @@ const store = new MongoDBStore({
 // On initialise notre csrf protection
 const csrfProtection = csrf();
 
-const privateKey = fs.readFileSync('server.key');
-const certificate = fs.readFileSync('server.cert');
+// const privateKey = fs.readFileSync('server.key');
+// const certificate = fs.readFileSync('server.cert');
 
 // diskstorage nous permet de configurer le file upload
 const fileStorage = multer.diskStorage({
@@ -225,9 +225,12 @@ mongoose
     // });
     // *
 
-    https
-      .createServer({ key: privateKey, cert: certificate }, app)
-      .listen(process.env.PORT || 3000);
+    // LOCAL SSL SERVER
+    // https
+    //   .createServer({ key: privateKey, cert: certificate }, app)
+    //   .listen(process.env.PORT || 3000);
+
+    app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log(err);
