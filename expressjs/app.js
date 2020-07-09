@@ -1,5 +1,6 @@
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-beqli.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
@@ -13,6 +14,7 @@ const flash = require('connect-flash');
 const multer = require('multer');
 const helmet = require('helmet');
 const compression = require('compression');
+const morgan = require('morgan');
 
 const errorController = require('./controllers/error');
 // const mongoConnect = require('./util/database').mongoConnect;
@@ -70,11 +72,18 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'acces.log'),
+  { flags: 'a' }
+);
+
 // On utilise le package helmet pour secure nos Response Headers
 app.use(helmet());
 
 // On utilise le package compression qui va compressé nos assets
 app.use(compression());
+
+app.use(morgan('combined', { stream: accessLogStream }));
 
 // la fonction urlencoded va parse la réponse du body et passer à next()
 app.use(bodyParser.urlencoded({ extended: false }));
