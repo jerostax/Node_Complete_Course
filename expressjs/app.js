@@ -1,6 +1,8 @@
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-beqli.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}?retryWrites=true&w=majority`;
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
+
 const express = require('express');
 // On importe le body parser
 const bodyParser = require('body-parser');
@@ -32,6 +34,9 @@ const store = new MongoDBStore({
 
 // On initialise notre csrf protection
 const csrfProtection = csrf();
+
+const privateKey = fs.readFileSync('server.key');
+const certificate = fs.readFileSync('server.cert');
 
 // diskstorage nous permet de configurer le file upload
 const fileStorage = multer.diskStorage({
@@ -220,7 +225,9 @@ mongoose
     // });
     // *
 
-    app.listen(process.env.PORT || 3000);
+    https
+      .createServer({ key: privateKey, cert: certificate }, app)
+      .listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log(err);
